@@ -1,0 +1,31 @@
+<div class="app-wrapper" *ngIf="auth.isAuthenticated(); else noAuth">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h1 class="logo">{{ 'app.title' | translate }}</h1>
+      <p class="logo-sub">{{ 'app.subtitle' | translate }}</p>
+    </div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard" routerLinkActive="active">📊 {{ 'nav.dashboard' | translate }}</a></li>
+      <li><a routerLink="/projects" routerLinkActive="active">📁 {{ 'nav.projects' | translate }}</a></li>
+      <li><a routerLink="/projects/new" routerLinkActive="active">➕ {{ 'nav.createProject' | translate }}</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="lang-btn" (click)="toggleLanguage()">🌐 {{ 'app.languageSwitch' | translate }}</button>
+      <button class="logout-btn" (click)="logout()">🚪 {{ 'nav.logout' | translate }}</button>
+    </div>
+  </nav>
+  <!-- Main content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+<ng-template #noAuth>
+  <div class="auth-wrapper">
+    <div class="auth-lang-switch">
+      <button class="lang-btn-floating" (click)="toggleLanguage()">🌐 {{ 'app.languageSwitch' | translate }}</button>
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+</ng-template>

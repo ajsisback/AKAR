@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "AKAR",
+    "subtitle": "Admin Portal — Residential Construction Project Vault",
+    "language": "English",
+    "languageSwitch": "العربية"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "createProject": "New Project",
+    "logout": "Logout",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "companyName": "Company Name (optional)",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginHere": "Sign in here",
+    "registerHere": "Register here"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email address",
+    "passwordMin": "Password must be at least 8 characters",
+    "VALIDATION_FULLNAME_REQUIRED": "Full name is required",
+    "VALIDATION_EMAIL_REQUIRED": "Email is required",
+    "VALIDATION_EMAIL_INVALID": "Invalid email format",
+    "VALIDATION_PHONE_REQUIRED": "Phone number is required",
+    "VALIDATION_PASSWORD_REQUIRED": "Password is required",
+    "VALIDATION_PASSWORD_TOO_SHORT": "Password is too short",
+    "VALIDATION_PROJECT_NAME_REQUIRED": "Project name is required",
+    "VALIDATION_PROJECT_TYPE_REQUIRED": "Project type is required"
+  },
+  "errors": {
+    "AUTH_EMAIL_EXISTS": "Email is already registered",
+    "AUTH_INVALID_CREDENTIALS": "Invalid email or password",
+    "AUTH_ACCOUNT_INACTIVE": "Account is inactive",
+    "PROJECT_NOT_FOUND": "Project not found",
+    "PROJECT_INVALID_TYPE": "Invalid project type",
+    "PROJECT_INVALID_STAGE": "Invalid construction stage",
+    "INTERNAL_ERROR": "An unexpected error occurred",
+    "generic": "An error occurred, please try again later"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "totalProjects": "Total Projects",
+    "notStarted": "Not Started",
+    "structural": "Structural",
+    "finishing": "Finishing",
+    "completed": "Completed",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project"
+  },
+  "projects": {
+    "title": "Projects",
+    "createNew": "New Project",
+    "name": "Project Name",
+    "type": "Project Type",
+    "city": "City",
+    "location": "Location",
+    "mapLink": "Map Link",
+    "stage": "Construction Stage",
+    "imageUrl": "Image URL (optional)",
+    "details": "Details",
+    "createdAt": "Created",
+    "updatedAt": "Last Updated",
+    "noProjects": "No projects found",
+    "createFirst": "Create your first project to get started"
+  },
+  "projectType": {
+    "Villa": "Villa",
+    "Duplex": "Duplex",
+    "SmallBuilding": "Small Building"
+  },
+  "currentStage": {
+    "NotStarted": "Not Started",
+    "Structural": "Structural",
+    "Finishing": "Finishing",
+    "Completed": "Completed"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "create": "Create",
+    "submit": "Submit"
+  },
+  "messages": {
+    "projectCreated": "Project created successfully",
+    "loginSuccess": "Logged in successfully",
+    "registerSuccess": "Account created successfully",
+    "logoutSuccess": "Logged out successfully"
+  }
+}

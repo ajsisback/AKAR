@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Akar.Api/Akar.Api.csproj" />
+    <Project Path="src/Akar.Application/Akar.Application.csproj" />
+    <Project Path="src/Akar.Domain/Akar.Domain.csproj" />
+    <Project Path="src/Akar.Infrastructure/Akar.Infrastructure.csproj" />
+    <Project Path="src/Akar.Shared/Akar.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Akar.Api.Tests/Akar.Api.Tests.csproj" />
+  </Folder>
+</Solution>

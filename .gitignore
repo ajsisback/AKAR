@@ -1,0 +1,82 @@
+# ========================================
+# .NET
+# ========================================
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.nupkg
+*.snupkg
+**/Properties/launchSettings.json
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nuget.props
+*.nuget.targets
+.nuget/
+
+# ========================================
+# Node / Angular
+# ========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.angular/
+dist/
+tmp/
+out-tsc/
+.sass-cache/
+connect.lock
+coverage/
+libpeerconnection.log
+testem.log
+typings/
+.env
+.env.local
+.env.*.local
+
+# ========================================
+# Flutter / Dart
+# ========================================
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+*.iml
+
+# ========================================
+# IDE
+# ========================================
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================================
+# OS
+# ========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================
+# Docker
+# ========================================
+docker/.env

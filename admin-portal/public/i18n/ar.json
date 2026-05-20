@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "أكار",
+    "subtitle": "بوابة الإدارة — خزنة مشاريع البناء السكني",
+    "language": "العربية",
+    "languageSwitch": "English"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "projects": "المشاريع",
+    "createProject": "مشروع جديد",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "companyName": "اسم الشركة (اختياري)",
+    "loginButton": "دخول",
+    "registerButton": "إنشاء حساب",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "loginHere": "سجل دخولك",
+    "registerHere": "أنشئ حساباً"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صحيح",
+    "passwordMin": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "VALIDATION_FULLNAME_REQUIRED": "الاسم الكامل مطلوب",
+    "VALIDATION_EMAIL_REQUIRED": "البريد الإلكتروني مطلوب",
+    "VALIDATION_EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+    "VALIDATION_PHONE_REQUIRED": "رقم الهاتف مطلوب",
+    "VALIDATION_PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
+    "VALIDATION_PASSWORD_TOO_SHORT": "كلمة المرور قصيرة جداً",
+    "VALIDATION_PROJECT_NAME_REQUIRED": "اسم المشروع مطلوب",
+    "VALIDATION_PROJECT_TYPE_REQUIRED": "نوع المشروع مطلوب"
+  },
+  "errors": {
+    "AUTH_EMAIL_EXISTS": "البريد الإلكتروني مسجل مسبقاً",
+    "AUTH_INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "AUTH_ACCOUNT_INACTIVE": "الحساب غير مفعل",
+    "PROJECT_NOT_FOUND": "المشروع غير موجود",
+    "PROJECT_INVALID_TYPE": "نوع المشروع غير صحيح",
+    "PROJECT_INVALID_STAGE": "مرحلة البناء غير صحيحة",
+    "INTERNAL_ERROR": "حدث خطأ غير متوقع",
+    "generic": "حدث خطأ، يرجى المحاولة لاحقاً"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً",
+    "totalProjects": "إجمالي المشاريع",
+    "notStarted": "لم تبدأ",
+    "structural": "هيكل إنشائي",
+    "finishing": "تشطيب",
+    "completed": "مكتمل",
+    "noProjects": "لا توجد مشاريع بعد",
+    "createFirst": "أنشئ مشروعك الأول"
+  },
+  "projects": {
+    "title": "المشاريع",
+    "createNew": "مشروع جديد",
+    "name": "اسم المشروع",
+    "type": "نوع المشروع",
+    "city": "المدينة",
+    "location": "الموقع",
+    "mapLink": "رابط الخريطة",
+    "stage": "مرحلة البناء",
+    "imageUrl": "رابط الصورة (اختياري)",
+    "details": "التفاصيل",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "آخر تحديث",
+    "noProjects": "لا توجد مشاريع",
+    "createFirst": "أنشئ مشروعك الأول للبدء"
+  },
+  "projectType": {
+    "Villa": "فيلا",
+    "Duplex": "دوبلكس",
+    "SmallBuilding": "عمارة صغيرة"
+  },
+  "currentStage": {
+    "NotStarted": "لم تبدأ",
+    "Structural": "هيكل إنشائي",
+    "Finishing": "تشطيب",
+    "Completed": "مكتمل"
+  },
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "back": "رجوع",
+    "create": "إنشاء",
+    "submit": "إرسال"
+  },
+  "messages": {
+    "projectCreated": "تم إنشاء المشروع بنجاح",
+    "loginSuccess": "تم تسجيل الدخول بنجاح",
+    "registerSuccess": "تم إنشاء الحساب بنجاح",
+    "logoutSuccess": "تم تسجيل الخروج"
+  }
+}
