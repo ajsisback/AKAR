@@ -9,6 +9,7 @@ namespace Akar.Application.Features.Folders;
 /// <summary>
 /// Lists all active (non-deleted) folders for a project owned by the requesting owner.
 /// Backfills default system folders if they don't exist yet (handles existing projects).
+/// Includes FileCount (active files only) for each folder.
 /// </summary>
 public record ListFoldersQuery(Guid ProjectId, Guid OwnerId) : IRequest<Result<List<ProjectFolderDto>>>;
 
@@ -16,13 +17,16 @@ public class ListFoldersQueryHandler : IRequestHandler<ListFoldersQuery, Result<
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IProjectFolderRepository _folderRepository;
+    private readonly IProjectFileRepository _fileRepository;
 
     public ListFoldersQueryHandler(
         IProjectRepository projectRepository,
-        IProjectFolderRepository folderRepository)
+        IProjectFolderRepository folderRepository,
+        IProjectFileRepository fileRepository)
     {
         _projectRepository = projectRepository;
         _folderRepository = folderRepository;
+        _fileRepository = fileRepository;
     }
 
     public async Task<Result<List<ProjectFolderDto>>> Handle(ListFoldersQuery request, CancellationToken cancellationToken)
@@ -48,12 +52,18 @@ public class ListFoldersQueryHandler : IRequestHandler<ListFoldersQuery, Result<
 
         var folders = await _folderRepository.GetByProjectIdForOwnerAsync(request.ProjectId, request.OwnerId, cancellationToken);
 
-        var dtos = folders.Select(MapToDto).ToList();
+        var dtos = new List<ProjectFolderDto>(folders.Count);
+        foreach (var f in folders)
+        {
+            var fileCount = await _fileRepository.CountActiveByFolderAsync(f.Id, cancellationToken);
+            dtos.Add(MapToDto(f, fileCount));
+        }
+
         return Result<List<ProjectFolderDto>>.Success(dtos);
     }
 
-    private static ProjectFolderDto MapToDto(ProjectFolder f) => new(
+    private static ProjectFolderDto MapToDto(ProjectFolder f, int fileCount) => new(
         f.Id, f.ProjectId, f.OwnerId, f.ParentFolderId,
         f.FolderName, f.FolderType.ToString(), f.IsSystemFolder,
-        f.CreatedAtUtc, f.UpdatedAtUtc);
+        fileCount, f.CreatedAtUtc, f.UpdatedAtUtc);
 }

@@ -8,5 +8,7 @@ public record ProjectFolderDto(
     string FolderName,
     string FolderType,
     bool IsSystemFolder,
+    int FileCount,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc);
+

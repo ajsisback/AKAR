@@ -2,6 +2,7 @@ using Akar.Application.Interfaces;
 using Akar.Infrastructure.Persistence;
 using Akar.Infrastructure.Repositories;
 using Akar.Infrastructure.Services;
+using Akar.Shared.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +23,12 @@ public static class DependencyInjection
         services.AddScoped<IOwnerRepository, OwnerRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
+        services.AddScoped<IProjectFileRepository, ProjectFileRepository>();
 
         // Services
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasherService>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
         // JWT Authentication
         var jwtSettings = configuration.GetSection("Jwt");

@@ -67,5 +67,12 @@ public class ProjectFile : Entity<Guid>
         SetUpdatedAt();
     }
 
+    public void Restore()
+    {
+        IsDeleted = false;
+        DeletedAtUtc = null;
+        SetUpdatedAt();
+    }
+
     private ProjectFile(Guid id) : base(id) { }
 }

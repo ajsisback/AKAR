@@ -47,5 +47,5 @@ public class RenameFolderCommandHandler : IRequestHandler<RenameFolderCommand, R
     private static ProjectFolderDto MapToDto(ProjectFolder f) => new(
         f.Id, f.ProjectId, f.OwnerId, f.ParentFolderId,
         f.FolderName, f.FolderType.ToString(), f.IsSystemFolder,
-        f.CreatedAtUtc, f.UpdatedAtUtc);
+        0, f.CreatedAtUtc, f.UpdatedAtUtc);
 }

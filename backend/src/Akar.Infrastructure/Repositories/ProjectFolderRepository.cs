@@ -22,6 +22,12 @@ public class ProjectFolderRepository : IProjectFolderRepository
             .ThenBy(f => f.FolderName)
             .ToListAsync(cancellationToken);
 
+    public async Task<List<ProjectFolder>> GetDeletedByProjectForOwnerAsync(Guid projectId, Guid ownerId, CancellationToken cancellationToken = default)
+        => await _context.ProjectFolders
+            .Where(f => f.ProjectId == projectId && f.OwnerId == ownerId && f.IsDeleted)
+            .OrderByDescending(f => f.DeletedAtUtc)
+            .ToListAsync(cancellationToken);
+
     public async Task<bool> HasSystemFoldersAsync(Guid projectId, CancellationToken cancellationToken = default)
         => await _context.ProjectFolders
             .AnyAsync(f => f.ProjectId == projectId && f.IsSystemFolder, cancellationToken);
