@@ -1,7 +1,11 @@
 using Akar.Api.Middleware;
 using Akar.Application;
 using Akar.Infrastructure;
+using QuestPDF.Infrastructure;
 using Serilog;
+
+// QuestPDF Community License
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -118,6 +118,21 @@ public class ProjectContractsController : ControllerBase
             : MapError(result.ErrorCode!, result.ErrorMessage!);
     }
 
+    /// <summary>Generates a PDF for the project contract and saves it to the Contracts folder.</summary>
+    [HttpPost("{contractId:guid}/generate-pdf")]
+    public async Task<IActionResult> GeneratePdf(Guid projectId, Guid contractId, CancellationToken cancellationToken)
+    {
+        var ownerId = GetOwnerId();
+        if (ownerId is null) return Unauthorized();
+
+        var result = await _mediator.Send(
+            new GenerateProjectContractPdfCommand(projectId, contractId, ownerId.Value), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : MapError(result.ErrorCode!, result.ErrorMessage!);
+    }
+
     private Guid? GetOwnerId()
     {
         var sub = User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -128,7 +143,10 @@ public class ProjectContractsController : ControllerBase
     private IActionResult MapError(string code, string detail) => code switch
     {
         "PROJECT_NOT_FOUND" or "CONTRACT_NOT_FOUND" or "CONTRACT_TEMPLATE_NOT_FOUND"
+            or "CONTRACTS_FOLDER_NOT_FOUND"
             => NotFound(new ProblemDetails { Status = 404, Title = code, Detail = detail }),
+        "CONTRACT_NOT_ELIGIBLE_FOR_PDF" or "CONTRACT_CANCELLED"
+            => Conflict(new ProblemDetails { Status = 409, Title = code, Detail = detail }),
         _ => BadRequest(new ProblemDetails { Status = 400, Title = code, Detail = detail })
     };
 }

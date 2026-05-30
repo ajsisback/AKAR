@@ -16,7 +16,7 @@ public class ProjectRepository : IProjectRepository
         => await _context.Projects.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
     public async Task<Project?> GetByIdForOwnerAsync(Guid id, Guid ownerId, CancellationToken cancellationToken = default)
-        => await _context.Projects.FirstOrDefaultAsync(p => p.Id == id && p.OwnerId == ownerId, cancellationToken);
+        => await _context.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id && p.OwnerId == ownerId, cancellationToken);
 
     public async Task<List<Project>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default)
         => await _context.Projects.Where(p => p.OwnerId == ownerId).OrderByDescending(p => p.CreatedAtUtc).ToListAsync(cancellationToken);

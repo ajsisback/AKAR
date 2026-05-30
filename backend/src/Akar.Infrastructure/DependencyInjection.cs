@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasherService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddScoped<IContractPdfGenerator, ContractPdfGenerator>();
 
         // JWT Authentication
         var jwtSettings = configuration.GetSection("Jwt");

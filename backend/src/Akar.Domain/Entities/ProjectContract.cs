@@ -95,6 +95,29 @@ public class ProjectContract : Entity<Guid>
         return true;
     }
 
+    /// <summary>Marks a Draft contract as ready for PDF generation.</summary>
+    public bool MarkReadyForPdf()
+    {
+        if (IsDeleted || Status != ContractStatus.Draft) return false;
+        Status = ContractStatus.ReadyForPdf;
+        SetUpdatedAt();
+        return true;
+    }
+
+    /// <summary>
+    /// Sets PdfFileId and advances status to PdfGenerated.
+    /// Allowed from Draft or ReadyForPdf only.
+    /// </summary>
+    public bool MarkPdfGenerated(Guid pdfFileId)
+    {
+        if (IsDeleted) return false;
+        if (Status != ContractStatus.Draft && Status != ContractStatus.ReadyForPdf) return false;
+        PdfFileId = pdfFileId;
+        Status = ContractStatus.PdfGenerated;
+        SetUpdatedAt();
+        return true;
+    }
+
     /// <summary>Soft-deletes the contract.</summary>
     public bool SoftDelete()
     {
