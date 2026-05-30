@@ -20,6 +20,7 @@ public class AkarDbContext : DbContext
     public DbSet<ProjectFolder> ProjectFolders => Set<ProjectFolder>();
     public DbSet<ProjectFile> ProjectFiles => Set<ProjectFile>();
     public DbSet<ProjectFollower> ProjectFollowers => Set<ProjectFollower>();
+    public DbSet<FollowerUploadLink> FollowerUploadLinks => Set<FollowerUploadLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
