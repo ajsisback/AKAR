@@ -24,6 +24,8 @@ public static class DependencyInjection
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
         services.AddScoped<IProjectFileRepository, ProjectFileRepository>();
+        services.AddScoped<IProjectFollowerRepository, ProjectFollowerRepository>();
+        services.AddScoped<IFollowerUploadLinkRepository, FollowerUploadLinkRepository>();
 
         // Services
         services.AddScoped<IJwtTokenService, JwtTokenService>();

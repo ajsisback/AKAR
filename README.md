@@ -100,7 +100,7 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 
 ---
 
-## Sprint 2 Status — Finalized, Pending PR Review (Document Vault)
+## Sprint 2 Status — Complete ✅ (Document Vault) — Merged
 
 ### Backend API — Document Vault ✅
 - ProjectFolder & ProjectFile entities (DDD, soft-delete)
@@ -134,7 +134,58 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 ### Infrastructure ✅
 - Local file storage under `storage/owners/` (cloud-portable via `IFileStorageService`)
 - EF Core migrations: InitialCreate + AddDocumentVault
-- Branch: `feature/sprint-2-document-vault` (pending PR review)
+- Tag: `sprint-2-closed`
+
+---
+
+## Sprint 3 Status — Complete ✅ (Followers & Incoming Files) — Pending PR Review
+
+### Sprint 3A — Followers Foundation ✅
+- ProjectFollower entity with FollowerType enum (Supervisor, Relative, Contractor, Designer, EngineeringOffice, Other)
+- Follower CRUD APIs (GET, POST, PUT, DELETE soft-delete)
+- Automatic FollowerInbox folder creation per follower
+- Owner isolation enforced via JWT
+
+### Sprint 3B — Follower Upload Links ✅
+- FollowerUploadLink entity with SHA256 token hashing
+- Owner APIs: Generate, List (preview only), Revoke
+- Public APIs: Get Info (minimal safe data), Upload File (multipart/form-data)
+- Raw token returned once at generation only
+- File validation (PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG, WEBP, MP4, MOV)
+- Dangerous files rejected (EXE, BAT, CMD, PS1, SH, JS, MSI, DLL, ZIP)
+
+### Sprint 3C — Flutter Owner Followers UI ✅
+- Followers list screen with type icons and status badges
+- Add/Edit follower form with type dropdown
+- Follower details with inbox shortcut and upload links section
+- Generate upload link with save-now warning dialog
+- Copy link, revoke link, list links (preview only)
+- Open follower inbox shortcut to Document Vault folder
+- 49 AR/EN localization keys
+
+### Sprint 3D — Public Follower Upload Page ✅
+- Public route: `/#/follower-upload/{token}`
+- Token-based info loading (no JWT required)
+- File picker + upload (no JWT required)
+- Invalid/expired/revoked token error screens with translated messages
+- Language switcher on public page
+- 20 AR/EN localization keys
+
+### Security Model ✅
+- Raw token returned once only at generation
+- Token hash stored in database (SHA256)
+- No owner JWT in upload link or public upload requests
+- Public upload page is upload-only (no browse, download, delete, or file listing)
+- Storage paths are not exposed in API responses
+- All error messages mapped to localized translations
+
+### Deferred
+- Angular follower admin UI
+- Follower login / auth
+- Notifications
+- Rate limiting on public upload
+- File download via token
+- Contracts, Saudi building code, directory
 
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout

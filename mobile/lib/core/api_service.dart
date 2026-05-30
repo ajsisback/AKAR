@@ -278,6 +278,134 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 3 — Followers API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<List<Map<String, dynamic>>> getProjectFollowers(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> createProjectFollower(String projectId, Map<String, dynamic> data) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers'),
+      headers: _headers,
+      body: json.encode(data),
+    );
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> getProjectFollower(String projectId, String followerId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> updateProjectFollower(String projectId, String followerId, Map<String, dynamic> data) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId'),
+      headers: _headers,
+      body: json.encode(data),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> deleteProjectFollower(String projectId, String followerId) async {
+    final resp = await http.delete(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Sprint 3 — Follower Upload Links API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> generateFollowerUploadLink(String projectId, String followerId, {String? expiresAtUtc}) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId/upload-link'),
+      headers: _headers,
+      body: json.encode({
+        if (expiresAtUtc != null) 'expiresAtUtc': expiresAtUtc,
+      }),
+    );
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<List<Map<String, dynamic>>> getFollowerUploadLinks(String projectId, String followerId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId/upload-links'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> revokeFollowerUploadLink(String projectId, String followerId, String linkId) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/followers/$followerId/upload-links/$linkId/revoke'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Sprint 3D — Public Follower Upload API (no JWT)
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> getFollowerUploadInfo(String token) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/public/follower-upload/$token/info'),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> uploadFollowerFile(String token, Uint8List fileBytes, String fileName) async {
+    final uri = Uri.parse('$baseUrl/api/public/follower-upload/$token/files');
+    final request = http.MultipartRequest('POST', uri);
+    // No Authorization header — public endpoint
+    request.files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: fileName));
+
+    final streamed = await request.send();
+    final resp = await http.Response.fromStream(streamed);
+
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {
