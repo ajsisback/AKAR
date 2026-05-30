@@ -12,7 +12,7 @@ Project Vault + Construction Helper + Lightweight Directory
 App/
 ├── backend/          .NET 10 Web API (Clean Architecture)
 ├── admin-portal/     Angular 19+ Admin Portal (AR/EN bilingual)
-├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 1 complete)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 2 complete)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture decisions & documentation
 ```
@@ -97,6 +97,37 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - PostgreSQL 17 via Docker Compose (port 5433)
 - EF Core code-first migration (owners + projects tables)
 - Git baseline: `sprint-1-closed` tag
+
+---
+
+## Sprint 2 Status — Complete (Document Vault)
+
+### Backend API — Document Vault ✅
+- ProjectFolder & ProjectFile entities (DDD, soft-delete)
+- 10 default system folders auto-created per project
+- Folder CRUD (create custom, rename, soft-delete)
+- File upload (multipart, 100 MB limit, extension whitelist)
+- File download (authenticated streaming)
+- File metadata, soft-delete, restore
+- Trash API (list deleted files + folders)
+- LocalFileStorageService (cloud-portable IFileStorageService)
+- EF Core migration: `AddDocumentVault`
+- 11 new API endpoints
+
+### Flutter Mobile App — Document Vault ✅
+- Document vault screen (folder list with system/custom indicators)
+- Folder details screen (file list with upload)
+- File details bottom sheet (metadata, download, delete)
+- Trash screen (deleted files restore, deleted folders display)
+- File upload via `file_picker` with confirmation dialog
+- File download via Blob URL (web) with authenticated headers
+- Arabic/English bilingual (131 translation keys each, up from 62)
+- `flutter analyze` passes with 0 issues
+
+### Infrastructure ✅
+- Local file storage under `storage/owners/`
+- EF Core migrations: InitialCreate + AddDocumentVault
+- Git baseline: `sprint-2-closed` tag
 
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout

@@ -5,7 +5,7 @@ namespace Akar.Domain.Entities;
 
 /// <summary>
 /// File metadata within a project folder.
-/// Physical file storage is handled by IFileStorageService (not implemented in Sprint 2A).
+/// Physical file storage handled by IFileStorageService (LocalFileStorageService).
 /// </summary>
 public class ProjectFile : Entity<Guid>
 {

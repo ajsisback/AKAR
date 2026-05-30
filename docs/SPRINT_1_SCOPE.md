@@ -88,8 +88,6 @@ Additional Flutter capabilities:
 - Project edit/update
 - Project delete
 
-## Sprint 2 Prerequisite
+## Sprint 2
 
-> Flutter SDK is installed (3.44.0, Dart 3.12.0).
->
-> Sprint 2 can proceed with Flutter as the primary owner-facing channel.
+> Sprint 2 (Document Vault) is complete. See [SPRINT_2_SCOPE.md](SPRINT_2_SCOPE.md) for details.
