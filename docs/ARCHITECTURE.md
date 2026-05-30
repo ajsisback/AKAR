@@ -68,8 +68,8 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ### Localization Strategy
 
 - Backend: **stateless** — returns stable error codes only
-- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (62 keys AR/EN)
-- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (128 keys AR/EN, +21 vault keys)
+- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (201 keys AR/EN)
+- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (149 keys AR/EN)
 - Arabic is the default language in both channels
 - RTL/LTR toggling handled natively in Flutter via `Directionality` (locale-driven)
 - RTL/LTR toggling in Angular via `LanguageService` setting `dir` attribute on `<html>`
@@ -94,7 +94,7 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ```
 C:\Users\JSSurface2\Desktop\AKAR\App
 ├── backend/          .NET 10 Web API (Clean Architecture) — Shared API
-├── mobile/           Flutter mobile app — PRIMARY OWNER APP (Sprint 2 complete)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 3 complete)
 ├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 2D vault support view)
 ├── storage/          Local file storage (document vault files)
 ├── docker/           Docker Compose (PostgreSQL)
@@ -131,9 +131,9 @@ All Sprint 1 features are implemented and verified across all three layers:
 | RTL/LTR Support | ✅ Complete | Both Angular and Flutter |
 | Git Baseline | ✅ Tagged | `sprint-1-closed` |
 
-## Sprint 2 Completion — Document Vault (Finalized, Pending PR Review)
+## Sprint 2 Completion — Document Vault (Merged ✅)
 
-All Sprint 2 features are implemented and verified:
+All Sprint 2 features are implemented, verified, and merged to main:
 
 | Component | Status | Build/Analyze |
 |-----------|--------|---------------|
@@ -142,7 +142,21 @@ All Sprint 2 features are implemented and verified:
 | Angular (Vault Support) | ✅ Complete | `npm run build` — success |
 | EF Core Migration | ✅ Complete | AddDocumentVault (project_folders + project_files) |
 | Local File Storage | ✅ Complete | `storage/owners/` directory structure |
-| Arabic/English i18n (Flutter) | ✅ Complete | 123 keys each (AR + EN) |
-| Arabic/English i18n (Angular) | ✅ Complete | 128 keys each (AR + EN) |
-| API Endpoints | ✅ Complete | 11 new endpoints |
-| Branch | ✅ Pushed | `feature/sprint-2-document-vault` (pending PR review) |
+| Tag | ✅ | `sprint-2-closed` |
+
+## Sprint 3 Completion — Followers & Incoming Files (Pending PR Review)
+
+All Sprint 3 features are implemented and verified:
+
+| Component | Status | Build/Analyze |
+|-----------|--------|---------------|
+| Backend (Followers) | ✅ Complete | `dotnet build` — success, `dotnet test` — passed |
+| Backend (Upload Links) | ✅ Complete | SHA256 token hashing, public upload APIs |
+| Flutter (Owner Followers UI) | ✅ Complete | `flutter analyze` — no issues |
+| Flutter (Public Upload Page) | ✅ Complete | `flutter build web` — success |
+| Angular | N/A | No changes in Sprint 3 |
+| EF Core Migration | ✅ Complete | AddFollowersAndUploadLinks |
+| Security | ✅ Verified | Token hash stored only, public APIs no JWT |
+| Arabic/English i18n (Flutter) | ✅ Complete | 201 keys each (AR + EN) |
+| API Endpoints | ✅ Complete | 10 new endpoints (8 owner + 2 public) |
+| Branch | ✅ Pushed | `feature/sprint-3-followers-inbox` (pending PR review) |

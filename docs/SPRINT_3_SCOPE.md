@@ -83,3 +83,18 @@ Followers **can only**:
 |--------|-------|---------|
 | GET | `/api/public/follower-upload/{token}/info` | Minimal upload info |
 | POST | `/api/public/follower-upload/{token}/files` | Upload file |
+
+## Deferred (Not in Sprint 3)
+
+- Angular follower admin UI
+- Follower login / authentication
+- Follower dashboard
+- File download via upload token
+- File browsing for followers
+- Notifications (email, SMS, push)
+- Rate limiting on public upload
+- Contracts module
+- Saudi building code module
+- Directory / marketplace
+- OCR / AI document processing
+
