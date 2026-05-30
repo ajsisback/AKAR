@@ -79,6 +79,13 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// --- Seed contract templates ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Akar.Infrastructure.Persistence.AkarDbContext>();
+    await Akar.Infrastructure.Seed.ContractTemplateSeeder.SeedAsync(db);
+}
+
 // --- Middleware Pipeline ---
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
