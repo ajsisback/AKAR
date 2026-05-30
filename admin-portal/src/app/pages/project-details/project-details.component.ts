@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProjectService, ProjectDto } from '../../core/services/project.service';
+import {
+  DocumentVaultService,
+  FolderDto,
+  FileDto,
+  TrashDto
+} from '../../core/services/document-vault.service';
 
 @Component({
   selector: 'app-project-details',
@@ -59,32 +65,355 @@ import { ProjectService, ProjectDto } from '../../core/services/project.service'
       <div class="empty-state-icon">❌</div>
       <div class="empty-state-title">{{ 'errors.PROJECT_NOT_FOUND' | translate }}</div>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DOCUMENT VAULT — Admin Support View (Read-only)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="vault-section" *ngIf="project">
+
+      <div class="vault-header">
+        <h2 class="section-title">
+          <span class="section-icon">🗄️</span>
+          {{ 'vault.title' | translate }}
+        </h2>
+        <span class="badge badge-readonly">{{ 'vault.readOnly' | translate }}</span>
+      </div>
+
+      <!-- Vault Tabs -->
+      <div class="vault-tabs">
+        <button class="vault-tab" [class.active]="vaultTab === 'folders'" (click)="vaultTab = 'folders'; selectedFolder = null; folderFiles = []">
+          {{ 'vault.folders' | translate }}
+        </button>
+        <button class="vault-tab" [class.active]="vaultTab === 'trash'" (click)="vaultTab = 'trash'; loadTrash()">
+          {{ 'vault.trash' | translate }}
+        </button>
+      </div>
+
+      <!-- FOLDERS TAB -->
+      <div class="vault-panel" *ngIf="vaultTab === 'folders'">
+
+        <!-- Folder List -->
+        <div class="card vault-card" *ngIf="!selectedFolder">
+          <div class="empty-state" *ngIf="folders.length === 0 && !foldersLoading">
+            <div class="empty-state-icon">📂</div>
+            <div class="empty-state-title">{{ 'vault.noFolders' | translate }}</div>
+          </div>
+
+          <table class="data-table" *ngIf="folders.length > 0">
+            <thead>
+              <tr>
+                <th>{{ 'vault.folderName' | translate }}</th>
+                <th>{{ 'vault.folderType' | translate }}</th>
+                <th>{{ 'vault.folderKind' | translate }}</th>
+                <th>{{ 'vault.fileCount' | translate }}</th>
+                <th>{{ 'vault.createdAt' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let f of folders">
+                <td>
+                  <span class="folder-icon">{{ getFolderIcon(f.folderType) }}</span>
+                  {{ f.folderName }}
+                </td>
+                <td><span class="badge badge-type">{{ f.folderType }}</span></td>
+                <td>
+                  <span class="badge" [ngClass]="f.isSystemFolder ? 'badge-system' : 'badge-custom'">
+                    {{ (f.isSystemFolder ? 'vault.systemFolder' : 'vault.customFolder') | translate }}
+                  </span>
+                </td>
+                <td class="num-cell">{{ f.fileCount }}</td>
+                <td>{{ f.createdAtUtc | date:'mediumDate' }}</td>
+                <td>
+                  <button class="btn-sm btn-outline" (click)="selectFolder(f)">
+                    {{ 'actions.view' | translate }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Folder File List -->
+        <div class="card vault-card" *ngIf="selectedFolder">
+          <div class="folder-detail-header">
+            <button class="btn-sm btn-outline" (click)="selectedFolder = null; folderFiles = []">
+              ← {{ 'actions.back' | translate }}
+            </button>
+            <h3>
+              <span class="folder-icon">{{ getFolderIcon(selectedFolder.folderType) }}</span>
+              {{ selectedFolder.folderName }}
+            </h3>
+          </div>
+
+          <div class="empty-state" *ngIf="folderFiles.length === 0 && !filesLoading">
+            <div class="empty-state-icon">📄</div>
+            <div class="empty-state-title">{{ 'vault.noFiles' | translate }}</div>
+          </div>
+
+          <table class="data-table" *ngIf="folderFiles.length > 0">
+            <thead>
+              <tr>
+                <th>{{ 'vault.fileName' | translate }}</th>
+                <th>{{ 'vault.fileCategory' | translate }}</th>
+                <th>{{ 'vault.contentType' | translate }}</th>
+                <th>{{ 'vault.fileSize' | translate }}</th>
+                <th>{{ 'vault.createdAt' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let file of folderFiles">
+                <td>
+                  <span class="file-icon">{{ getFileIcon(file.category) }}</span>
+                  {{ file.originalFileName }}
+                </td>
+                <td><span class="badge badge-category">{{ file.category || '—' }}</span></td>
+                <td class="muted">{{ file.contentType }}</td>
+                <td class="num-cell">{{ formatSize(file.sizeBytes) }}</td>
+                <td>{{ file.createdAtUtc | date:'mediumDate' }}</td>
+                <td>
+                  <button class="btn-sm btn-outline" (click)="downloadFile(file)" [title]="'vault.download' | translate">
+                    ⬇️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRASH TAB -->
+      <div class="vault-panel" *ngIf="vaultTab === 'trash'">
+        <div class="card vault-card">
+
+          <div class="empty-state" *ngIf="trashEmpty && !trashLoading">
+            <div class="empty-state-icon">🗑️</div>
+            <div class="empty-state-title">{{ 'vault.noDeletedItems' | translate }}</div>
+          </div>
+
+          <!-- Deleted Files -->
+          <div *ngIf="trash && trash.deletedFiles.length > 0">
+            <h4 class="trash-subtitle">{{ 'vault.deletedFiles' | translate }}</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'vault.fileName' | translate }}</th>
+                  <th>{{ 'vault.fileCategory' | translate }}</th>
+                  <th>{{ 'vault.contentType' | translate }}</th>
+                  <th>{{ 'vault.fileSize' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let file of trash.deletedFiles">
+                  <td>
+                    <span class="file-icon">{{ getFileIcon(file.category) }}</span>
+                    {{ file.originalFileName }}
+                  </td>
+                  <td><span class="badge badge-category">{{ file.category || '—' }}</span></td>
+                  <td class="muted">{{ file.contentType }}</td>
+                  <td class="num-cell">{{ formatSize(file.sizeBytes) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Deleted Folders -->
+          <div *ngIf="trash && trash.deletedFolders.length > 0" class="trash-folders-section">
+            <h4 class="trash-subtitle">{{ 'vault.deletedFolders' | translate }}</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'vault.folderName' | translate }}</th>
+                  <th>{{ 'vault.folderType' | translate }}</th>
+                  <th>{{ 'vault.folderKind' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let f of trash.deletedFolders">
+                  <td>
+                    <span class="folder-icon">{{ getFolderIcon(f.folderType) }}</span>
+                    {{ f.folderName }}
+                  </td>
+                  <td><span class="badge badge-type">{{ f.folderType }}</span></td>
+                  <td>
+                    <span class="badge" [ngClass]="f.isSystemFolder ? 'badge-system' : 'badge-custom'">
+                      {{ (f.isSystemFolder ? 'vault.systemFolder' : 'vault.customFolder') | translate }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   `,
   styles: [`
     .link { color: var(--accent); text-decoration: none; word-break: break-all; }
     .link:hover { text-decoration: underline; }
+
+    /* Vault section */
+    .vault-section { margin-top: 32px; }
+
+    .vault-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.25rem; font-weight: 700; color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-icon { font-size: 1.4rem; }
+
+    .badge-readonly {
+      background: rgba(139,149,165,0.15); color: var(--text-muted);
+      font-size: 0.72rem; padding: 4px 10px; border-radius: 12px;
+    }
+
+    /* Tabs */
+    .vault-tabs {
+      display: flex; gap: 4px; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 0;
+    }
+
+    .vault-tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-secondary); padding: 10px 20px; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .vault-tab:hover { color: var(--text-primary); }
+    .vault-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Vault card */
+    .vault-card { margin-bottom: 16px; }
+
+    /* Folder detail header */
+    .folder-detail-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+    }
+    .folder-detail-header h3 {
+      font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Icons */
+    .folder-icon { font-size: 1.1rem; }
+    .file-icon { font-size: 1rem; }
+
+    /* Badges */
+    .badge-system { background: rgba(27,77,62,0.2); color: var(--primary-light); }
+    .badge-custom { background: rgba(212,168,67,0.2); color: var(--accent); }
+    .badge-type { background: rgba(139,149,165,0.12); color: var(--text-secondary); font-size: 0.72rem; }
+    .badge-category { background: rgba(212,168,67,0.12); color: var(--accent-light); font-size: 0.72rem; }
+
+    /* Cells */
+    .num-cell { font-variant-numeric: tabular-nums; }
+    .muted { color: var(--text-muted); font-size: 0.85rem; }
+
+    /* Small button */
+    .btn-sm {
+      padding: 6px 14px; font-size: 0.8rem; border-radius: 6px;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+      background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+    }
+    .btn-sm:hover { border-color: var(--primary-light); color: var(--text-primary); }
+
+    /* Trash */
+    .trash-subtitle {
+      font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);
+      margin: 16px 0 12px 0;
+    }
+    .trash-subtitle:first-child { margin-top: 0; }
+    .trash-folders-section { margin-top: 24px; }
   `]
 })
 export class ProjectDetailsComponent implements OnInit {
   project: ProjectDto | null = null;
   loading = true;
 
+  // Vault state
+  vaultTab: 'folders' | 'trash' = 'folders';
+  folders: FolderDto[] = [];
+  foldersLoading = false;
+  selectedFolder: FolderDto | null = null;
+  folderFiles: FileDto[] = [];
+  filesLoading = false;
+  trash: TrashDto | null = null;
+  trashLoading = false;
+
+  private projectId = '';
+
   constructor(
     private route: ActivatedRoute,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private vaultService: DocumentVaultService
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.projectId = id;
       this.projectService.getById(id).subscribe({
-        next: (p) => { this.project = p; this.loading = false; },
+        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); },
         error: () => { this.loading = false; }
       });
     } else {
       this.loading = false;
     }
   }
+
+  // ── Vault logic ─────────────────────────────────
+
+  loadFolders(): void {
+    this.foldersLoading = true;
+    this.vaultService.getProjectFolders(this.projectId).subscribe({
+      next: (f) => { this.folders = f; this.foldersLoading = false; },
+      error: () => { this.foldersLoading = false; }
+    });
+  }
+
+  selectFolder(folder: FolderDto): void {
+    this.selectedFolder = folder;
+    this.filesLoading = true;
+    this.vaultService.getFolderFiles(this.projectId, folder.id).subscribe({
+      next: (files) => { this.folderFiles = files; this.filesLoading = false; },
+      error: () => { this.filesLoading = false; }
+    });
+  }
+
+  loadTrash(): void {
+    this.trashLoading = true;
+    this.vaultService.getProjectTrash(this.projectId).subscribe({
+      next: (t) => { this.trash = t; this.trashLoading = false; },
+      error: () => { this.trashLoading = false; }
+    });
+  }
+
+  get trashEmpty(): boolean {
+    if (!this.trash) return true;
+    return this.trash.deletedFiles.length === 0 && this.trash.deletedFolders.length === 0;
+  }
+
+  downloadFile(file: FileDto): void {
+    this.vaultService.downloadFile(this.projectId, file.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.originalFileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
+
+  // ── Helpers ─────────────────────────────────────
 
   getBadgeClass(stage: string): string {
     const map: Record<string, string> = {
@@ -94,5 +423,28 @@ export class ProjectDetailsComponent implements OnInit {
       Completed: 'badge-completed'
     };
     return map[stage] || 'badge-not-started';
+  }
+
+  getFolderIcon(type: string): string {
+    const icons: Record<string, string> = {
+      License: '📋', ProjectLocation: '📍', Contracts: '📑', Drawings: '📐',
+      Photos: '📷', Videos: '🎬', Invoices: '🧾', Warranties: '🛡️',
+      FollowersInbox: '📬', Trash: '🗑️', Custom: '📁'
+    };
+    return icons[type] || '📁';
+  }
+
+  getFileIcon(category: string): string {
+    const icons: Record<string, string> = {
+      Document: '📄', Image: '🖼️', Video: '🎥', Other: '📎'
+    };
+    return icons[category] || '📎';
+  }
+
+  formatSize(bytes: number): string {
+    if (!bytes || bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
   }
 }

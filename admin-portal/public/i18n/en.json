@@ -103,5 +103,29 @@
     "loginSuccess": "Logged in successfully",
     "registerSuccess": "Account created successfully",
     "logoutSuccess": "Logged out successfully"
+  },
+  "vault": {
+    "title": "Document Vault",
+    "readOnly": "Support View — Read Only",
+    "folders": "Folders",
+    "folderName": "Folder Name",
+    "folderType": "Folder Type",
+    "folderKind": "Kind",
+    "systemFolder": "System",
+    "customFolder": "Custom",
+    "fileCount": "Files",
+    "files": "Files",
+    "fileName": "File Name",
+    "fileCategory": "Category",
+    "contentType": "Content Type",
+    "fileSize": "Size",
+    "createdAt": "Created",
+    "trash": "Trash",
+    "deletedFiles": "Deleted Files",
+    "deletedFolders": "Deleted Folders",
+    "noFolders": "No folders found",
+    "noFiles": "No files in this folder",
+    "noDeletedItems": "No deleted items",
+    "download": "Download"
   }
 }

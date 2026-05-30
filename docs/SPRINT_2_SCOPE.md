@@ -2,21 +2,23 @@
 
 ## Objective
 
-Add a full **Document Vault** to every project, allowing owners to organise construction documents in folders, upload / download files, soft-delete with trash, and restore items — all from the Flutter mobile app.
+Add a full **Document Vault** to every project, allowing owners to organise construction documents in folders, upload / download files, soft-delete with trash, and restore items — all from the Flutter mobile app. Provide a read-only admin support view in Angular.
 
 ## Channel Ownership
 
 | Channel | Role |
 |---------|------|
-| **Flutter Mobile App** | PRIMARY owner application (Sprint 2 features delivered here) |
-| **Angular Admin Portal** | Internal / admin / support portal only (no Sprint 2 changes) |
+| **Flutter Mobile App** | PRIMARY owner application (Document Vault delivered here) |
+| **Angular Admin Portal** | Internal / admin / support portal (read-only vault view) |
 | **Backend (.NET API)** | Shared API layer |
 
-> Flutter is the only owner-facing channel for Sprint 2 features.
+> Flutter is the primary owner-facing channel. Angular provides admin support views only.
 
-## Sprint 2 Status — Complete
+## Sprint 2 Status — Finalized (Pending PR Review)
 
-All Sprint 2 features are implemented and verified in code across three sub-sprints.
+All Sprint 2 features are implemented and verified across four sub-sprints.
+
+The branch `feature/sprint-2-document-vault` is ready for Pull Request review.
 
 ---
 
@@ -71,10 +73,30 @@ Additional Flutter capabilities (Sprint 2C):
 - Folder type icons and localized labels
 - File category badges (Document, Image, Video, Other)
 - File size formatting
-- Arabic/English localization (131 keys each, up from 62)
+- Arabic/English localization (123 keys each)
 - Error handling with mapped backend error codes
 - Pull-to-refresh on all list screens
 - Entry point from Project Details screen via Document Vault card
+
+### Sprint 2D — Angular Support View + PR Readiness ✅
+
+Read-only admin/support view of the Document Vault in the Angular admin portal.
+
+| Component | File | Status |
+|-----------|------|--------|
+| DocumentVaultService | `core/services/document-vault.service.ts` | ✅ New |
+| Project Details (Vault section) | `pages/project-details/project-details.component.ts` | ✅ Updated |
+| English i18n | `public/i18n/en.json` | ✅ Updated (+21 vault keys) |
+| Arabic i18n | `public/i18n/ar.json` | ✅ Updated (+21 vault keys) |
+
+Angular vault support features:
+- Folder list with type, system/custom indicator, and file count
+- File metadata table (name, category, content type, size, date)
+- Authenticated file download via Blob URL (JWT in Authorization header, never in URL)
+- Trash summary (deleted files and deleted folders, read-only)
+- Tabbed UI (Folders / Trash)
+- Arabic/English localization (21 new vault keys each)
+- No upload, no delete, no restore — read-only support view only
 
 ## Verification
 
@@ -82,8 +104,10 @@ Additional Flutter capabilities (Sprint 2C):
 |-----------|--------|-------------|
 | Backend API | ✅ Complete | `dotnet build` — 0 warnings, 0 errors |
 | Flutter Mobile App | ✅ Complete | `flutter analyze` — no issues |
+| Angular Admin Portal | ✅ Complete | `npm run build` — success |
 | EF Core Migrations | ✅ Complete | InitialCreate + AddDocumentVault |
-| Arabic/English i18n | ✅ Complete | 131 keys each (AR + EN) |
+| Arabic/English i18n (Flutter) | ✅ Complete | 123 keys each (AR + EN) |
+| Arabic/English i18n (Angular) | ✅ Complete | 128 keys each (AR + EN), including 21 vault keys |
 | Local File Storage | ✅ Complete | `storage/owners/` directory structure |
 
 ## API Endpoints Added (Sprint 2)
@@ -102,16 +126,27 @@ Additional Flutter capabilities (Sprint 2C):
 | POST | `/api/projects/{id}/files/{fileId}/restore` | Restore file |
 | GET | `/api/projects/{id}/trash` | List deleted items |
 
+## Security Notes
+
+- File download in both Flutter and Angular uses `Authorization: Bearer` header
+- JWT is never passed in query string parameters
+- Physical `storagePath` is excluded from all API DTOs
+- Backend returns stable error codes; clients translate to Arabic/English
+- Raw backend exception messages are never shown to users
+- `storage/` directory is in `.gitignore` and never committed
+
 ## Features NOT Included (Deferred to Sprint 3+)
 
 - Project edit / update
 - Project delete
-- Cloud file storage (Azure Blob / S3)
+- Cloud file storage (Azure Blob / S3 / GCP / Alibaba)
 - File previews (image thumbnails, PDF viewer)
 - Folder drag-and-drop reordering
 - Multi-file upload
 - Permanent delete (purge from trash)
 - File sharing / external links
+- Angular upload flow
+- Angular delete/restore
 - Notifications
 - AI features
 - Payment integration

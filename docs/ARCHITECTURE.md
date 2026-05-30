@@ -69,7 +69,7 @@ Akar.Api            → Controllers, Middleware, Program.cs
 
 - Backend: **stateless** — returns stable error codes only
 - Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (62 keys AR/EN)
-- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (107 keys AR/EN)
+- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (128 keys AR/EN, +21 vault keys)
 - Arabic is the default language in both channels
 - RTL/LTR toggling handled natively in Flutter via `Directionality` (locale-driven)
 - RTL/LTR toggling in Angular via `LanguageService` setting `dir` attribute on `<html>`
@@ -95,7 +95,7 @@ Akar.Api            → Controllers, Middleware, Program.cs
 C:\Users\JSSurface2\Desktop\AKAR\App
 ├── backend/          .NET 10 Web API (Clean Architecture) — Shared API
 ├── mobile/           Flutter mobile app — PRIMARY OWNER APP (Sprint 2 complete)
-├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 1 complete)
+├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 2D vault support view)
 ├── storage/          Local file storage (document vault files)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture notes
@@ -131,7 +131,7 @@ All Sprint 1 features are implemented and verified across all three layers:
 | RTL/LTR Support | ✅ Complete | Both Angular and Flutter |
 | Git Baseline | ✅ Tagged | `sprint-1-closed` |
 
-## Sprint 2 Completion — Document Vault
+## Sprint 2 Completion — Document Vault (Finalized, Pending PR Review)
 
 All Sprint 2 features are implemented and verified:
 
@@ -139,8 +139,10 @@ All Sprint 2 features are implemented and verified:
 |-----------|--------|---------------|
 | Backend API (Vault) | ✅ Complete | `dotnet build` — 0 warnings, 0 errors |
 | Flutter (Vault UI) | ✅ Complete | `flutter analyze` — no issues |
+| Angular (Vault Support) | ✅ Complete | `npm run build` — success |
 | EF Core Migration | ✅ Complete | AddDocumentVault (project_folders + project_files) |
 | Local File Storage | ✅ Complete | `storage/owners/` directory structure |
-| Arabic/English i18n | ✅ Complete | 131 keys each (AR + EN) |
+| Arabic/English i18n (Flutter) | ✅ Complete | 123 keys each (AR + EN) |
+| Arabic/English i18n (Angular) | ✅ Complete | 128 keys each (AR + EN) |
 | API Endpoints | ✅ Complete | 11 new endpoints |
-| Git Baseline | ✅ Tagged | `sprint-2-closed` |
+| Branch | ✅ Pushed | `feature/sprint-2-document-vault` (pending PR review) |
