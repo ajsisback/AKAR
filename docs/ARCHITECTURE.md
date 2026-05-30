@@ -68,8 +68,8 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ### Localization Strategy
 
 - Backend: **stateless** — returns stable error codes only
-- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (201 keys AR/EN)
-- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (149 keys AR/EN)
+- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (260 keys AR/EN)
+- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (166 keys AR/EN)
 - Arabic is the default language in both channels
 - RTL/LTR toggling handled natively in Flutter via `Directionality` (locale-driven)
 - RTL/LTR toggling in Angular via `LanguageService` setting `dir` attribute on `<html>`
@@ -94,8 +94,8 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ```
 C:\Users\JSSurface2\Desktop\AKAR\App
 ├── backend/          .NET 10 Web API (Clean Architecture) — Shared API
-├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 3 complete)
-├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 2D vault support view)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 4C complete)
+├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 4D contracts support view)
 ├── storage/          Local file storage (document vault files)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture notes
@@ -159,4 +159,24 @@ All Sprint 3 features are implemented and verified:
 | Security | ✅ Verified | Token hash stored only, public APIs no JWT |
 | Arabic/English i18n (Flutter) | ✅ Complete | 201 keys each (AR + EN) |
 | API Endpoints | ✅ Complete | 10 new endpoints (8 owner + 2 public) |
-| Branch | ✅ Pushed | `feature/sprint-3-followers-inbox` (pending PR review) |
+| Branch | ✅ Pushed | `feature/sprint-3-followers-inbox` (merged to main) |
+| Tag | ✅ | `sprint-3-closed` |
+
+## Sprint 4 Completion — Ready Contracts
+
+All Sprint 4 features are implemented and verified:
+
+| Component | Status | Build/Analyze |
+|-----------|--------|---------------|
+| Backend (Templates + Contracts) | ✅ Complete | `dotnet build` — success, `dotnet test` — passed |
+| Backend (PDF Generation) | ✅ Complete | QuestPDF + Arabic font rendering verified |
+| Flutter (Contracts UI) | ✅ Complete | `flutter analyze` — no issues |
+| Angular (Contracts Support) | ✅ Complete | `npm run build` — success |
+| EF Core Migration | ✅ Complete | AddReadyContracts (contract_templates + project_contracts) |
+| Seed Data | ✅ Complete | 7 contract templates seeded |
+| PDF Storage | ✅ Complete | PDFs saved to project Contracts folder |
+| Security | ✅ Verified | Owner isolation, no JWT in URL, Blob download |
+| Arabic/English i18n (Flutter) | ✅ Complete | 260 keys each (AR + EN) |
+| Arabic/English i18n (Angular) | ✅ Complete | 166 keys each (AR + EN) |
+| API Endpoints | ✅ Complete | 9 new endpoints (7 owner + 2 templates) |
+| Branch | ✅ Pushed | `feature/sprint-4-ready-contracts` |

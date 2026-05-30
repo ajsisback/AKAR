@@ -1,5 +1,6 @@
 using Akar.Application.Interfaces;
 using Akar.Domain.Entities;
+using Akar.Domain.Enums;
 using Akar.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,10 @@ public class ProjectFolderRepository : IProjectFolderRepository
     public async Task<bool> HasSystemFoldersAsync(Guid projectId, CancellationToken cancellationToken = default)
         => await _context.ProjectFolders
             .AnyAsync(f => f.ProjectId == projectId && f.IsSystemFolder, cancellationToken);
+
+    public async Task<ProjectFolder?> GetSystemFolderAsync(Guid projectId, FolderType folderType, CancellationToken cancellationToken = default)
+        => await _context.ProjectFolders
+            .FirstOrDefaultAsync(f => f.ProjectId == projectId && f.FolderType == folderType && f.IsSystemFolder && !f.IsDeleted, cancellationToken);
 
     public async Task AddAsync(ProjectFolder folder, CancellationToken cancellationToken = default)
         => await _context.ProjectFolders.AddAsync(folder, cancellationToken);

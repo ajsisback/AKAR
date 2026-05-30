@@ -11,5 +11,6 @@ public interface IProjectFolderRepository
     Task<bool> HasSystemFoldersAsync(Guid projectId, CancellationToken cancellationToken = default);
     Task AddAsync(ProjectFolder folder, CancellationToken cancellationToken = default);
     Task AddRangeAsync(IEnumerable<ProjectFolder> folders, CancellationToken cancellationToken = default);
+    Task<ProjectFolder?> GetSystemFolderAsync(Guid projectId, FolderType folderType, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

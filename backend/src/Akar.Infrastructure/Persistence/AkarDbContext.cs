@@ -21,6 +21,8 @@ public class AkarDbContext : DbContext
     public DbSet<ProjectFile> ProjectFiles => Set<ProjectFile>();
     public DbSet<ProjectFollower> ProjectFollowers => Set<ProjectFollower>();
     public DbSet<FollowerUploadLink> FollowerUploadLinks => Set<FollowerUploadLink>();
+    public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
+    public DbSet<ProjectContract> ProjectContracts => Set<ProjectContract>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

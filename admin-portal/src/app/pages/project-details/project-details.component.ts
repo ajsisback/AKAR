@@ -9,6 +9,7 @@ import {
   FileDto,
   TrashDto
 } from '../../core/services/document-vault.service';
+import { ReadyContractsService, ContractDto } from '../../core/services/ready-contracts.service';
 
 @Component({
   selector: 'app-project-details',
@@ -250,6 +251,157 @@ import {
       </div>
 
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         READY CONTRACTS — Admin Support View (Read-only)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="contracts-section" *ngIf="project">
+
+      <div class="vault-header">
+        <h2 class="section-title">
+          <span class="section-icon">📑</span>
+          {{ 'contracts.title' | translate }}
+        </h2>
+        <span class="badge badge-readonly">{{ 'contracts.readOnly' | translate }}</span>
+      </div>
+
+      <!-- Contract List -->
+      <div class="card vault-card" *ngIf="!selectedContract">
+
+        <div class="empty-state" *ngIf="contracts.length === 0 && !contractsLoading">
+          <div class="empty-state-icon">📑</div>
+          <div class="empty-state-title">{{ 'contracts.noContracts' | translate }}</div>
+        </div>
+
+        <table class="data-table" *ngIf="contracts.length > 0">
+          <thead>
+            <tr>
+              <th>{{ 'contracts.contractTitle' | translate }}</th>
+              <th>{{ 'contracts.contractType' | translate }}</th>
+              <th>{{ 'contracts.partyName' | translate }}</th>
+              <th>{{ 'contracts.contractValue' | translate }}</th>
+              <th>{{ 'contracts.status' | translate }}</th>
+              <th>{{ 'contracts.pdf' | translate }}</th>
+              <th>{{ 'contracts.createdAt' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of contracts">
+              <td>{{ c.contractTitle }}</td>
+              <td><span class="badge badge-type">{{ c.contractType || '—' }}</span></td>
+              <td>{{ c.partyName || '—' }}</td>
+              <td class="num-cell">{{ c.contractValue != null ? c.contractValue + ' ' + ('contracts.sar' | translate) : '—' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getContractStatusBadge(c.status)">
+                  {{ getContractStatusLabel(c.status) | translate }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="c.pdfFileId" class="badge badge-pdf-yes">{{ 'contracts.pdfAvailable' | translate }}</span>
+                <span *ngIf="!c.pdfFileId" class="muted">{{ 'contracts.pdfNotAvailable' | translate }}</span>
+              </td>
+              <td>{{ c.createdAtUtc | date:'mediumDate' }}</td>
+              <td>
+                <button class="btn-sm btn-outline" (click)="selectContract(c)">
+                  {{ 'actions.view' | translate }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Contract Detail Panel -->
+      <div class="card vault-card" *ngIf="selectedContract">
+        <div class="folder-detail-header">
+          <button class="btn-sm btn-outline" (click)="selectedContract = null">
+            ← {{ 'actions.back' | translate }}
+          </button>
+          <h3>{{ selectedContract.contractTitle }}</h3>
+          <span class="badge" [ngClass]="getContractStatusBadge(selectedContract.status)">
+            {{ getContractStatusLabel(selectedContract.status) | translate }}
+          </span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>{{ 'contracts.template' | translate }}</label>
+            <div class="value">{{ selectedContract.templateNameAr || selectedContract.templateNameEn || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.contractType' | translate }}</label>
+            <div class="value">{{ selectedContract.contractType || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.partyName' | translate }}</label>
+            <div class="value">{{ selectedContract.partyName || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.partyPhone' | translate }}</label>
+            <div class="value">{{ selectedContract.partyPhone || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.partyNationalId' | translate }}</label>
+            <div class="value">{{ selectedContract.partyNationalId || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.contractValue' | translate }}</label>
+            <div class="value">{{ selectedContract.contractValue != null ? selectedContract.contractValue + ' ' + ('contracts.sar' | translate) : '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.startDate' | translate }}</label>
+            <div class="value">{{ selectedContract.startDate ? (selectedContract.startDate | date:'mediumDate') : '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.endDate' | translate }}</label>
+            <div class="value">{{ selectedContract.endDate ? (selectedContract.endDate | date:'mediumDate') : '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'contracts.createdAt' | translate }}</label>
+            <div class="value">{{ selectedContract.createdAtUtc | date:'medium' }}</div>
+          </div>
+        </div>
+
+        <!-- Contract Data Sections -->
+        <div class="contract-data-sections" *ngIf="contractData">
+          <div class="contract-data-section" *ngIf="contractData.scopeOfWork">
+            <h4>{{ 'contracts.scopeOfWork' | translate }}</h4>
+            <p>{{ contractData.scopeOfWork }}</p>
+          </div>
+          <div class="contract-data-section" *ngIf="contractData.paymentTerms">
+            <h4>{{ 'contracts.paymentTerms' | translate }}</h4>
+            <p>{{ contractData.paymentTerms }}</p>
+          </div>
+          <div class="contract-data-section" *ngIf="contractData.ownerObligations">
+            <h4>{{ 'contracts.ownerObligations' | translate }}</h4>
+            <p>{{ contractData.ownerObligations }}</p>
+          </div>
+          <div class="contract-data-section" *ngIf="contractData.contractorObligations">
+            <h4>{{ 'contracts.contractorObligations' | translate }}</h4>
+            <p>{{ contractData.contractorObligations }}</p>
+          </div>
+          <div class="contract-data-section" *ngIf="contractData.notes">
+            <h4>{{ 'contracts.notes' | translate }}</h4>
+            <p>{{ contractData.notes }}</p>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="contract-disclaimer">
+          <strong>⚠️ {{ 'contracts.disclaimer' | translate }}</strong>
+          <p>{{ 'contracts.disclaimerText' | translate }}</p>
+        </div>
+
+        <!-- PDF Download -->
+        <div class="contract-pdf-actions" *ngIf="selectedContract.pdfFileId">
+          <button class="btn btn-accent" (click)="downloadContractPdf()">
+            ⬇️ {{ 'contracts.downloadPdf' | translate }}
+          </button>
+        </div>
+      </div>
+
+    </div>
   `,
   styles: [`
     .link { color: var(--accent); text-decoration: none; word-break: break-all; }
@@ -328,6 +480,48 @@ import {
     }
     .trash-subtitle:first-child { margin-top: 0; }
     .trash-folders-section { margin-top: 24px; }
+
+    /* Contracts section */
+    .contracts-section { margin-top: 32px; }
+
+    .badge-draft { background: rgba(212,168,67,0.2); color: var(--accent); }
+    .badge-ready-pdf { background: rgba(27,77,62,0.2); color: var(--primary-light); }
+    .badge-pdf-generated { background: rgba(46,160,67,0.2); color: #2ea043; }
+    .badge-signed { background: rgba(63,185,80,0.2); color: #3fb950; }
+    .badge-cancelled { background: rgba(248,81,73,0.2); color: #f85149; }
+    .badge-pdf-yes { background: rgba(46,160,67,0.15); color: #2ea043; font-size: 0.72rem; }
+
+    .contract-data-sections { margin-top: 20px; }
+    .contract-data-section {
+      margin-bottom: 16px; padding: 12px;
+      background: rgba(139,149,165,0.06); border-radius: 8px;
+    }
+    .contract-data-section h4 {
+      font-size: 0.85rem; font-weight: 600; color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .contract-data-section p {
+      font-size: 0.9rem; color: var(--text-secondary);
+      white-space: pre-wrap; margin: 0;
+    }
+
+    .contract-disclaimer {
+      margin-top: 16px; padding: 12px;
+      background: rgba(212,168,67,0.08);
+      border: 1px solid rgba(212,168,67,0.25);
+      border-radius: 8px;
+    }
+    .contract-disclaimer strong { color: var(--accent); font-size: 0.85rem; }
+    .contract-disclaimer p { font-size: 0.82rem; color: var(--text-muted); margin: 6px 0 0 0; }
+
+    .contract-pdf-actions { margin-top: 16px; }
+    .btn-accent {
+      background: var(--accent); color: var(--bg-dark);
+      border: none; padding: 10px 20px; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: opacity 0.2s;
+    }
+    .btn-accent:hover { opacity: 0.85; }
   `]
 })
 export class ProjectDetailsComponent implements OnInit {
@@ -344,12 +538,19 @@ export class ProjectDetailsComponent implements OnInit {
   trash: TrashDto | null = null;
   trashLoading = false;
 
+  // Contracts state
+  contracts: ContractDto[] = [];
+  contractsLoading = false;
+  selectedContract: ContractDto | null = null;
+  contractData: any = null;
+
   private projectId = '';
 
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
-    private vaultService: DocumentVaultService
+    private vaultService: DocumentVaultService,
+    private contractsService: ReadyContractsService
   ) {}
 
   ngOnInit(): void {
@@ -357,7 +558,7 @@ export class ProjectDetailsComponent implements OnInit {
     if (id) {
       this.projectId = id;
       this.projectService.getById(id).subscribe({
-        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); },
+        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); },
         error: () => { this.loading = false; }
       });
     } else {
@@ -411,6 +612,63 @@ export class ProjectDetailsComponent implements OnInit {
         URL.revokeObjectURL(url);
       }
     });
+  }
+
+  // ── Contracts logic ────────────────────────────
+
+  loadContracts(): void {
+    this.contractsLoading = true;
+    this.contractsService.getProjectContracts(this.projectId).subscribe({
+      next: (c) => { this.contracts = c; this.contractsLoading = false; },
+      error: () => { this.contractsLoading = false; }
+    });
+  }
+
+  selectContract(contract: ContractDto): void {
+    this.selectedContract = contract;
+    this.contractData = null;
+    if (contract.contractDataJson) {
+      try { this.contractData = JSON.parse(contract.contractDataJson); } catch {}
+    }
+  }
+
+  downloadContractPdf(): void {
+    if (!this.selectedContract?.pdfFileId) return;
+    this.contractsService.downloadContractPdf(this.projectId, this.selectedContract.pdfFileId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (this.selectedContract?.contractTitle || 'contract') + '.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
+
+  getContractStatusBadge(status: string): string {
+    const map: Record<string, string> = {
+      Draft: 'badge-draft',
+      ReadyForPdf: 'badge-ready-pdf',
+      PdfGenerated: 'badge-pdf-generated',
+      SignedUploaded: 'badge-signed',
+      Cancelled: 'badge-cancelled'
+    };
+    return map[status] || 'badge-draft';
+  }
+
+  getContractStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      Draft: 'contracts.statusDraft',
+      ReadyForPdf: 'contracts.statusReadyForPdf',
+      PdfGenerated: 'contracts.statusPdfGenerated',
+      SignedUploaded: 'contracts.statusSignedUploaded',
+      Cancelled: 'contracts.statusCancelled'
+    };
+    return map[status] || 'contracts.statusDraft';
   }
 
   // ── Helpers ─────────────────────────────────────
