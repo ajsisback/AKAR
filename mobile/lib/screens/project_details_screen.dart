@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import 'contracts_screen.dart';
 import 'document_vault_screen.dart';
 import 'followers_screen.dart';
 
@@ -94,6 +95,45 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                           Text(l.t('vault_title'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
                           const SizedBox(height: 2),
                           Text(l.t('vault_folders'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+                        ],
+                      )),
+                      const Icon(Icons.chevron_right, color: AkarTheme.textMuted),
+                    ]),
+                  ),
+                ),
+              ),
+
+              // Followers & Inbox entry
+              const SizedBox(height: 10),
+
+              // Ready Contracts entry
+              Card(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => ContractsScreen(
+                      projectId: widget.projectId,
+                      projectName: _project!['projectName'] ?? '',
+                    ),
+                  )),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(
+                          color: AkarTheme.success.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.description, color: AkarTheme.success, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.t('contracts_title'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                          const SizedBox(height: 2),
+                          Text(l.t('contracts_templates'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
                         ],
                       )),
                       const Icon(Icons.chevron_right, color: AkarTheme.textMuted),

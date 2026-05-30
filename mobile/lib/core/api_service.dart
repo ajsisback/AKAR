@@ -406,6 +406,98 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 4 — Ready Contracts API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<List<Map<String, dynamic>>> getContractTemplates() async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/contract-templates'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> getContractTemplate(String templateId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/contract-templates/$templateId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<List<Map<String, dynamic>>> getProjectContracts(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> createProjectContract(String projectId, Map<String, dynamic> data) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts'),
+      headers: _headers,
+      body: json.encode(data),
+    );
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> getProjectContract(String projectId, String contractId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts/$contractId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> updateProjectContract(String projectId, String contractId, Map<String, dynamic> data) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts/$contractId'),
+      headers: _headers,
+      body: json.encode(data),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> deleteProjectContract(String projectId, String contractId) async {
+    final resp = await http.delete(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts/$contractId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> generateContractPdf(String projectId, String contractId) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/contracts/$contractId/generate-pdf'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {
