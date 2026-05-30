@@ -23,6 +23,7 @@ public class AkarDbContext : DbContext
     public DbSet<FollowerUploadLink> FollowerUploadLinks => Set<FollowerUploadLink>();
     public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
     public DbSet<ProjectContract> ProjectContracts => Set<ProjectContract>();
+    public DbSet<ProjectTimelineEvent> ProjectTimelineEvents => Set<ProjectTimelineEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
