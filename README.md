@@ -11,8 +11,8 @@ Project Vault + Construction Helper + Lightweight Directory
 ```
 App/
 ├── backend/          .NET 10 Web API (Clean Architecture)
-├── admin-portal/     Angular 19+ Admin Portal (AR/EN bilingual)
-├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 1 complete)
+├── admin-portal/     Angular 19+ Admin Portal (AR/EN bilingual, vault support view)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 2 complete)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture decisions & documentation
 ```
@@ -78,7 +78,7 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 
 ### Angular Admin Portal ✅
 - Login, register, dashboard, projects list, create project, project details
-- Arabic/English bilingual (107 translation keys each)
+- Arabic/English bilingual (128 translation keys each)
 - RTL/LTR layout switching with language persistence
 - JWT interceptor, auth guard, environment config
 
@@ -97,6 +97,44 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - PostgreSQL 17 via Docker Compose (port 5433)
 - EF Core code-first migration (owners + projects tables)
 - Git baseline: `sprint-1-closed` tag
+
+---
+
+## Sprint 2 Status — Finalized, Pending PR Review (Document Vault)
+
+### Backend API — Document Vault ✅
+- ProjectFolder & ProjectFile entities (DDD, soft-delete)
+- 10 default system folders auto-created per project
+- Folder CRUD (create custom, rename, soft-delete)
+- File upload (multipart, 100 MB limit, extension whitelist)
+- File download (authenticated streaming)
+- File metadata, soft-delete, restore
+- Trash API (list deleted files + folders)
+- LocalFileStorageService (cloud-portable IFileStorageService)
+- EF Core migration: `AddDocumentVault`
+- 11 new API endpoints
+
+### Flutter Mobile App — Document Vault ✅
+- Document vault screen (folder list with system/custom indicators)
+- Folder details screen (file list with upload)
+- File details bottom sheet (metadata, download, delete)
+- Trash screen (deleted files restore, deleted folders display)
+- File upload via `file_picker` with confirmation dialog
+- File download via Blob URL (web) with authenticated headers
+- Arabic/English bilingual (123 translation keys each, up from 62)
+- `flutter analyze` passes with 0 issues
+
+### Angular Admin Portal — Document Vault Support View ✅
+- Read-only vault section in project details (folder list, file metadata, trash summary)
+- Authenticated file download via Blob URL (JWT in Authorization header)
+- DocumentVaultService with 4 methods (getProjectFolders, getFolderFiles, getProjectTrash, downloadFile)
+- Arabic/English bilingual (128 translation keys each, +21 vault keys)
+- No upload, no delete, no restore — admin support view only
+
+### Infrastructure ✅
+- Local file storage under `storage/owners/` (cloud-portable via `IFileStorageService`)
+- EF Core migrations: InitialCreate + AddDocumentVault
+- Branch: `feature/sprint-2-document-vault` (pending PR review)
 
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout

@@ -20,10 +20,14 @@ public record CreateProjectCommand(
 public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, Result<ProjectDto>>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly IProjectFolderRepository _folderRepository;
 
-    public CreateProjectCommandHandler(IProjectRepository projectRepository)
+    public CreateProjectCommandHandler(
+        IProjectRepository projectRepository,
+        IProjectFolderRepository folderRepository)
     {
         _projectRepository = projectRepository;
+        _folderRepository = folderRepository;
     }
 
     public async Task<Result<ProjectDto>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -54,6 +58,14 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
 
         await _projectRepository.AddAsync(project, cancellationToken);
         await _projectRepository.SaveChangesAsync(cancellationToken);
+
+        // Create default system folders for the new project
+        var defaultFolders = ProjectFolder.DefaultSystemFolders
+            .Select(f => ProjectFolder.CreateSystemFolder(project.Id, request.OwnerId, f.Type, f.Name))
+            .ToList();
+
+        await _folderRepository.AddRangeAsync(defaultFolders, cancellationToken);
+        await _folderRepository.SaveChangesAsync(cancellationToken);
 
         return Result<ProjectDto>.Success(MapToDto(project));
     }

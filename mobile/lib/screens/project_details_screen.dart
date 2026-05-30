@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/theme.dart';
+import 'document_vault_screen.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
   final String projectId;
@@ -61,6 +63,43 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
               _Row(label: l.t('project_map_link'), value: _project!['mapLink'] ?? '—'),
               _Row(label: l.t('project_created_at'), value: _formatDate(_project!['createdAtUtc'])),
               _Row(label: l.t('project_updated_at'), value: _formatDate(_project!['updatedAtUtc'])),
+
+              // Document Vault entry
+              const SizedBox(height: 24),
+              Card(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => DocumentVaultScreen(
+                      projectId: widget.projectId,
+                      projectName: _project!['projectName'] ?? '',
+                    ),
+                  )),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(
+                          color: AkarTheme.accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.folder_special, color: AkarTheme.accent, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.t('vault_title'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                          const SizedBox(height: 2),
+                          Text(l.t('vault_folders'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+                        ],
+                      )),
+                      const Icon(Icons.chevron_right, color: AkarTheme.textMuted),
+                    ]),
+                  ),
+                ),
+              ),
             ]),
     );
   }

@@ -75,8 +75,15 @@ typings/
 .DS_Store
 Thumbs.db
 desktop.ini
+hs_err_pid*.log
+replay_pid*.log
 
 # ========================================
 # Docker
 # ========================================
 docker/.env
+
+# ========================================
+# Storage (uploaded files — never commit)
+# ========================================
+storage/

@@ -48,6 +48,10 @@ class ApiService {
     if (_token != null) 'Authorization': 'Bearer $_token',
   };
 
+  Map<String, String> get _authOnly => {
+    if (_token != null) 'Authorization': 'Bearer $_token',
+  };
+
   Future<Map<String, dynamic>> register({
     required String fullName,
     required String email,
@@ -126,6 +130,154 @@ class ApiService {
     if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
     throw ApiException(_parseError(resp));
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Document Vault — Folder APIs
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<List<Map<String, dynamic>>> getProjectFolders(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/folders'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> createFolder(String projectId, String folderName, {String? parentFolderId}) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/folders'),
+      headers: _headers,
+      body: json.encode({
+        'folderName': folderName,
+        'parentFolderId': parentFolderId,
+      }),
+    );
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> renameFolder(String projectId, String folderId, String newName) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/projects/$projectId/folders/$folderId'),
+      headers: _headers,
+      body: json.encode({'newName': newName}),
+    );
+    if (resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> deleteFolder(String projectId, String folderId) async {
+    final resp = await http.delete(
+      Uri.parse('$baseUrl/api/projects/$projectId/folders/$folderId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Document Vault — File APIs
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<List<Map<String, dynamic>>> getFolderFiles(String projectId, String folderId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/folders/$folderId/files'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> uploadFile(String projectId, String folderId, Uint8List fileBytes, String fileName) async {
+    final uri = Uri.parse('$baseUrl/api/projects/$projectId/folders/$folderId/files');
+    final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(_authOnly);
+    request.files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: fileName));
+
+    final streamed = await request.send();
+    final resp = await http.Response.fromStream(streamed);
+
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> getFileMetadata(String projectId, String fileId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/files/$fileId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  /// Downloads file bytes using authenticated header — never passes JWT in URL.
+  Future<Uint8List> downloadFileBytes(String projectId, String fileId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/files/$fileId/download'),
+      headers: _authOnly,
+    );
+    if (resp.statusCode == 200) return resp.bodyBytes;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> deleteFile(String projectId, String fileId) async {
+    final resp = await http.delete(
+      Uri.parse('$baseUrl/api/projects/$projectId/files/$fileId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> restoreFile(String projectId, String fileId) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/files/$fileId/restore'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Document Vault — Trash API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> getTrash(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/trash'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {

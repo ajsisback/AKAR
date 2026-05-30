@@ -9,6 +9,8 @@ public class AkarDbContext : DbContext
 
     public DbSet<Owner> Owners => Set<Owner>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectFolder> ProjectFolders => Set<ProjectFolder>();
+    public DbSet<ProjectFile> ProjectFiles => Set<ProjectFile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

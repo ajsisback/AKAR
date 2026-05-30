@@ -103,5 +103,29 @@
     "loginSuccess": "تم تسجيل الدخول بنجاح",
     "registerSuccess": "تم إنشاء الحساب بنجاح",
     "logoutSuccess": "تم تسجيل الخروج"
+  },
+  "vault": {
+    "title": "خزنة المستندات",
+    "readOnly": "عرض الدعم — للقراءة فقط",
+    "folders": "المجلدات",
+    "folderName": "اسم المجلد",
+    "folderType": "نوع المجلد",
+    "folderKind": "التصنيف",
+    "systemFolder": "نظام",
+    "customFolder": "مخصص",
+    "fileCount": "الملفات",
+    "files": "الملفات",
+    "fileName": "اسم الملف",
+    "fileCategory": "الفئة",
+    "contentType": "نوع المحتوى",
+    "fileSize": "الحجم",
+    "createdAt": "تاريخ الإنشاء",
+    "trash": "سلة المحذوفات",
+    "deletedFiles": "الملفات المحذوفة",
+    "deletedFolders": "المجلدات المحذوفة",
+    "noFolders": "لا توجد مجلدات",
+    "noFiles": "لا توجد ملفات في هذا المجلد",
+    "noDeletedItems": "لا توجد عناصر محذوفة",
+    "download": "تنزيل"
   }
 }

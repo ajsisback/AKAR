@@ -37,8 +37,8 @@ The MVP focuses on:
 > - `flutter analyze` passes with 0 issues
 > - Available targets: Windows (desktop), Chrome (web), Edge (web)
 >
-> Flutter mobile app is fully implemented for Sprint 1 with 6 screens,
-> API integration, JWT storage, AR/EN localization, and RTL/LTR support.
+> Flutter mobile app is fully implemented for Sprint 2 with 10 screens,
+> API integration, JWT storage, AR/EN localization (131 keys), and RTL/LTR support.
 
 ## Architecture
 
@@ -62,12 +62,14 @@ Akar.Api            → Controllers, Middleware, Program.cs
 | **Owner-scoped queries** | All project queries filtered by `OwnerId` from JWT claims. No cross-owner data leakage. |
 | **Result\<T\> monad** | No exceptions for business logic. Explicit success/failure flow. |
 | **Swashbuckle 6.9** | Used instead of built-in OpenAPI due to .NET 10 Microsoft.OpenApi v2 breaking changes. |
+| **IFileStorageService** | Cloud-portable abstraction. LocalFileStorageService for dev, future swap to Azure/S3. |
+| **Soft-delete** | Files and folders use `IsDeleted` flag. Physical files preserved for trash/restore. |
 
 ### Localization Strategy
 
 - Backend: **stateless** — returns stable error codes only
 - Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (62 keys AR/EN)
-- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (107 keys AR/EN)
+- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (128 keys AR/EN, +21 vault keys)
 - Arabic is the default language in both channels
 - RTL/LTR toggling handled natively in Flutter via `Directionality` (locale-driven)
 - RTL/LTR toggling in Angular via `LanguageService` setting `dir` attribute on `<html>`
@@ -92,8 +94,9 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ```
 C:\Users\JSSurface2\Desktop\AKAR\App
 ├── backend/          .NET 10 Web API (Clean Architecture) — Shared API
-├── mobile/           Flutter mobile app — PRIMARY OWNER APP (Sprint 1 complete)
-├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 1 complete)
+├── mobile/           Flutter mobile app — PRIMARY OWNER APP (Sprint 2 complete)
+├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 2D vault support view)
+├── storage/          Local file storage (document vault files)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture notes
 ```
@@ -127,3 +130,19 @@ All Sprint 1 features are implemented and verified across all three layers:
 | Arabic/English i18n | ✅ Complete | Both Angular and Flutter |
 | RTL/LTR Support | ✅ Complete | Both Angular and Flutter |
 | Git Baseline | ✅ Tagged | `sprint-1-closed` |
+
+## Sprint 2 Completion — Document Vault (Finalized, Pending PR Review)
+
+All Sprint 2 features are implemented and verified:
+
+| Component | Status | Build/Analyze |
+|-----------|--------|---------------|
+| Backend API (Vault) | ✅ Complete | `dotnet build` — 0 warnings, 0 errors |
+| Flutter (Vault UI) | ✅ Complete | `flutter analyze` — no issues |
+| Angular (Vault Support) | ✅ Complete | `npm run build` — success |
+| EF Core Migration | ✅ Complete | AddDocumentVault (project_folders + project_files) |
+| Local File Storage | ✅ Complete | `storage/owners/` directory structure |
+| Arabic/English i18n (Flutter) | ✅ Complete | 123 keys each (AR + EN) |
+| Arabic/English i18n (Angular) | ✅ Complete | 128 keys each (AR + EN) |
+| API Endpoints | ✅ Complete | 11 new endpoints |
+| Branch | ✅ Pushed | `feature/sprint-2-document-vault` (pending PR review) |
