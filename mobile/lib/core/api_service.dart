@@ -379,6 +379,33 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 3D — Public Follower Upload API (no JWT)
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> getFollowerUploadInfo(String token) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/public/follower-upload/$token/info'),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> uploadFollowerFile(String token, Uint8List fileBytes, String fileName) async {
+    final uri = Uri.parse('$baseUrl/api/public/follower-upload/$token/files');
+    final request = http.MultipartRequest('POST', uri);
+    // No Authorization header — public endpoint
+    request.files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: fileName));
+
+    final streamed = await request.send();
+    final resp = await http.Response.fromStream(streamed);
+
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {

@@ -10,6 +10,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/projects_screen.dart';
 import 'screens/create_project_screen.dart';
 import 'screens/project_details_screen.dart';
+import 'screens/public_follower_upload_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +27,24 @@ void main() async {
 class AkarApp extends StatelessWidget {
   const AkarApp({super.key});
 
+  /// Extract token from URL fragment: /#/follower-upload/{token}
+  static String? _extractUploadToken() {
+    try {
+      final uri = Uri.base;
+      final fragment = uri.fragment; // e.g. "/follower-upload/abc123"
+      if (fragment.startsWith('/follower-upload/')) {
+        final token = fragment.substring('/follower-upload/'.length);
+        if (token.isNotEmpty) return token;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final lp = context.watch<LocaleProvider>();
+    final uploadToken = _extractUploadToken();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AKAR',
@@ -41,7 +57,9 @@ class AkarApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const AppShell(),
+      home: uploadToken != null
+          ? PublicFollowerUploadScreen(token: uploadToken)
+          : const AppShell(),
     );
   }
 }

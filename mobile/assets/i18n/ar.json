@@ -177,5 +177,25 @@
   "err_follower_inactive": "التابع غير فعال",
   "err_upload_link_not_found": "لم يتم العثور على رابط الرفع",
   "err_upload_link_revoked": "رابط الرفع ملغي",
-  "err_upload_link_expired": "رابط الرفع منتهي الصلاحية"
+  "err_upload_link_expired": "رابط الرفع منتهي الصلاحية",
+
+  "public_upload_title": "رفع ملف",
+  "public_upload_for_project": "رفع ملف للمشروع",
+  "public_upload_follower_name": "اسم التابع",
+  "public_upload_project_name": "اسم المشروع",
+  "public_upload_allowed_types": "الأنواع المسموحة",
+  "public_upload_max_size": "الحجم الأقصى",
+  "public_upload_expires_at": "ينتهي في",
+  "public_upload_select_file": "اختيار ملف",
+  "public_upload_selected_file": "الملف المحدد",
+  "public_upload_button": "رفع الملف",
+  "public_upload_another": "رفع ملف آخر",
+  "public_upload_success": "تم رفع الملف بنجاح",
+  "public_upload_failed": "فشل رفع الملف",
+  "public_upload_invalid_link": "الرابط غير صالح أو غير متاح",
+  "public_upload_expired_link": "انتهت صلاحية رابط الرفع",
+  "public_upload_revoked_link": "تم إلغاء رابط الرفع",
+  "public_upload_try_again": "حاول مرة أخرى",
+  "public_upload_powered_by": "مدعوم من أكار",
+  "public_upload_no_expires": "بدون تاريخ انتهاء"
 }

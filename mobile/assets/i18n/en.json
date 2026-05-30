@@ -177,5 +177,25 @@
   "err_follower_inactive": "Follower is inactive",
   "err_upload_link_not_found": "Upload link not found",
   "err_upload_link_revoked": "Upload link has been revoked",
-  "err_upload_link_expired": "Upload link has expired"
+  "err_upload_link_expired": "Upload link has expired",
+
+  "public_upload_title": "Upload File",
+  "public_upload_for_project": "Upload file for project",
+  "public_upload_follower_name": "Your Name",
+  "public_upload_project_name": "Project",
+  "public_upload_allowed_types": "Allowed Types",
+  "public_upload_max_size": "Max Size",
+  "public_upload_expires_at": "Expires At",
+  "public_upload_select_file": "Select File",
+  "public_upload_selected_file": "Selected File",
+  "public_upload_button": "Upload File",
+  "public_upload_another": "Upload Another File",
+  "public_upload_success": "File uploaded successfully",
+  "public_upload_failed": "File upload failed",
+  "public_upload_invalid_link": "This upload link is invalid or unavailable",
+  "public_upload_expired_link": "This upload link has expired",
+  "public_upload_revoked_link": "This upload link has been revoked",
+  "public_upload_try_again": "Try Again",
+  "public_upload_powered_by": "Powered by AKAR",
+  "public_upload_no_expires": "No expiration"
 }
