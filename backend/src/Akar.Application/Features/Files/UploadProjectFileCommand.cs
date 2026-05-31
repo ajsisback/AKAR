@@ -27,6 +27,7 @@ public class UploadProjectFileCommandHandler : IRequestHandler<UploadProjectFile
     private readonly IProjectFolderRepository _folderRepository;
     private readonly IProjectFileRepository _fileRepository;
     private readonly IFileStorageService _storageService;
+    private readonly IProjectTimelineEventWriter _timelineWriter;
 
     // Allowed extensions by category
     private static readonly Dictionary<string, (FileCategory Category, long MaxBytes)> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -57,12 +58,14 @@ public class UploadProjectFileCommandHandler : IRequestHandler<UploadProjectFile
         IProjectRepository projectRepository,
         IProjectFolderRepository folderRepository,
         IProjectFileRepository fileRepository,
-        IFileStorageService storageService)
+        IFileStorageService storageService,
+        IProjectTimelineEventWriter timelineWriter)
     {
         _projectRepository = projectRepository;
         _folderRepository = folderRepository;
         _fileRepository = fileRepository;
         _storageService = storageService;
+        _timelineWriter = timelineWriter;
     }
 
     public async Task<Result<ProjectFileDto>> Handle(UploadProjectFileCommand request, CancellationToken cancellationToken)
@@ -135,6 +138,13 @@ public class UploadProjectFileCommandHandler : IRequestHandler<UploadProjectFile
 
         await _fileRepository.AddAsync(projectFile, cancellationToken);
         await _fileRepository.SaveChangesAsync(cancellationToken);
+
+        // 9. Create timeline event
+        await _timelineWriter.AddSystemEventAsync(
+            project.Id, project.OwnerId, project.CurrentStage,
+            TimelineEventType.FileUploaded, TimelineSourceType.ProjectFile, projectFile.Id,
+            "File uploaded", $"File uploaded: {originalFileName}",
+            cancellationToken);
 
         return Result<ProjectFileDto>.Success(MapToDto(projectFile));
     }

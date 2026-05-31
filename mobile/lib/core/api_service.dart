@@ -498,6 +498,80 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 5 — Project Timeline & Stage API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> getProjectStage(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> updateProjectStage(String projectId, String currentStage, {String? note}) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/projects/$projectId/stage'),
+      headers: _headers,
+      body: json.encode({
+        'currentStage': currentStage,
+        if (note != null && note.isNotEmpty) 'note': note,
+      }),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<List<Map<String, dynamic>>> getProjectTimeline(String projectId, {String? stage, String? eventType}) async {
+    final uri = Uri.parse('$baseUrl/api/projects/$projectId/timeline').replace(queryParameters: {
+      if (stage != null) 'stage': stage,
+      if (eventType != null) 'eventType': eventType,
+    });
+    final resp = await http.get(uri, headers: _headers);
+    if (resp.statusCode == 200) {
+      return (json.decode(resp.body) as List).cast<Map<String, dynamic>>();
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> addProjectTimelineNote(String projectId, {
+    required String stage,
+    required String title,
+    String? description,
+    String? eventDateUtc,
+  }) async {
+    final resp = await http.post(
+      Uri.parse('$baseUrl/api/projects/$projectId/timeline/notes'),
+      headers: _headers,
+      body: json.encode({
+        'stage': stage,
+        'title': title,
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (eventDateUtc != null) 'eventDateUtc': eventDateUtc,
+      }),
+    );
+    if (resp.statusCode == 201 || resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> deleteProjectTimelineEvent(String projectId, String eventId) async {
+    final resp = await http.delete(
+      Uri.parse('$baseUrl/api/projects/$projectId/timeline/$eventId'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {

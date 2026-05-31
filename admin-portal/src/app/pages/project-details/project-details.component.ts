@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProjectService, ProjectDto } from '../../core/services/project.service';
 import {
@@ -10,11 +11,12 @@ import {
   TrashDto
 } from '../../core/services/document-vault.service';
 import { ReadyContractsService, ContractDto } from '../../core/services/ready-contracts.service';
+import { TimelineService, TimelineEventDto } from '../../core/services/timeline.service';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
-  imports: [CommonModule, TranslateModule, RouterLink],
+  imports: [CommonModule, TranslateModule, FormsModule, RouterLink],
   template: `
     <div class="page-header">
       <h1 class="page-title">{{ 'projects.details' | translate }}</h1>
@@ -65,6 +67,114 @@ import { ReadyContractsService, ContractDto } from '../../core/services/ready-co
     <div class="empty-state card" *ngIf="!project && !loading">
       <div class="empty-state-icon">❌</div>
       <div class="empty-state-title">{{ 'errors.PROJECT_NOT_FOUND' | translate }}</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PROJECT TIMELINE — Admin Support View (Read-only)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="timeline-section" *ngIf="project">
+
+      <div class="vault-header">
+        <h2 class="section-title">
+          <span class="section-icon">📅</span>
+          {{ 'timeline.title' | translate }}
+        </h2>
+        <span class="badge badge-readonly">{{ 'timeline.readOnly' | translate }}</span>
+      </div>
+
+      <!-- Stage Progress Card -->
+      <div class="card stage-progress-card">
+        <div class="stage-header-row">
+          <div class="stage-info">
+            <label>{{ 'timeline.currentStage' | translate }}</label>
+            <div class="stage-value">
+              <span class="badge" [ngClass]="getBadgeClass(project.currentStage)">
+                {{ 'currentStage.' + project.currentStage | translate }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="stage-progress-bar">
+          <div *ngFor="let s of stages; let i = index" class="stage-step" [class.active]="i <= getStageIndex(project.currentStage)" [class.current]="i === getStageIndex(project.currentStage)">
+            <div class="stage-bar"></div>
+            <span class="stage-label">{{ 'currentStage.' + s | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="timeline-filters">
+        <div class="filter-group">
+          <label>{{ 'timeline.filterByStage' | translate }}</label>
+          <select [(ngModel)]="timelineFilterStage" (ngModelChange)="loadTimeline()">
+            <option value="">{{ 'timeline.allStages' | translate }}</option>
+            <option *ngFor="let s of stages" [value]="s">{{ 'currentStage.' + s | translate }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>{{ 'timeline.filterByType' | translate }}</label>
+          <select [(ngModel)]="timelineFilterType" (ngModelChange)="loadTimeline()">
+            <option value="">{{ 'timeline.allTypes' | translate }}</option>
+            <option *ngFor="let t of eventTypes" [value]="t">{{ 'timeline.eventType.' + t | translate }}</option>
+          </select>
+        </div>
+        <div class="filter-count">
+          {{ timelineEvents.length }} {{ 'timeline.events' | translate }}
+        </div>
+      </div>
+
+      <!-- Timeline Events Table -->
+      <div class="card vault-card">
+
+        <div class="empty-state" *ngIf="timelineEvents.length === 0 && !timelineLoading">
+          <div class="empty-state-icon">📅</div>
+          <div class="empty-state-title">{{ 'timeline.noEvents' | translate }}</div>
+          <div class="empty-state-sub">{{ 'timeline.noEventsSub' | translate }}</div>
+        </div>
+
+        <table class="data-table" *ngIf="timelineEvents.length > 0">
+          <thead>
+            <tr>
+              <th>{{ 'timeline.eventTitle' | translate }}</th>
+              <th>{{ 'timeline.eventTypeCol' | translate }}</th>
+              <th>{{ 'timeline.stage' | translate }}</th>
+              <th>{{ 'timeline.source' | translate }}</th>
+              <th>{{ 'timeline.eventDate' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ev of timelineEvents">
+              <td>
+                <div class="event-title-cell">
+                  <span class="event-icon">{{ getEventIcon(ev.eventType) }}</span>
+                  <div>
+                    <div class="event-title-text">{{ ev.title }}</div>
+                    <div class="event-desc" *ngIf="ev.description">{{ ev.description }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getEventTypeBadge(ev.eventType)">
+                  {{ 'timeline.eventType.' + ev.eventType | translate }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getBadgeClass(ev.stage)">
+                  {{ 'currentStage.' + ev.stage | translate }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="ev.isSystemGenerated ? 'badge-system-event' : 'badge-manual-event'">
+                  {{ (ev.isSystemGenerated ? 'timeline.systemEvent' : 'timeline.manualEvent') | translate }}
+                </span>
+              </td>
+              <td>{{ ev.eventDateUtc | date:'medium' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
@@ -484,6 +594,70 @@ import { ReadyContractsService, ContractDto } from '../../core/services/ready-co
     /* Contracts section */
     .contracts-section { margin-top: 32px; }
 
+    /* Timeline section */
+    .timeline-section { margin-top: 32px; }
+
+    .stage-progress-card { margin-bottom: 16px; }
+    .stage-header-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .stage-info label {
+      font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 4px; display: block;
+    }
+    .stage-value { margin-top: 4px; }
+
+    .stage-progress-bar { display: flex; gap: 6px; }
+    .stage-step { flex: 1; text-align: center; }
+    .stage-bar {
+      height: 6px; border-radius: 3px;
+      background: var(--border); transition: all 0.3s;
+    }
+    .stage-step.active .stage-bar { background: var(--accent); }
+    .stage-step.current .stage-bar { box-shadow: 0 0 8px rgba(212,168,67,0.4); }
+    .stage-label {
+      display: block; font-size: 0.7rem; color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .stage-step.active .stage-label { color: var(--text-primary); }
+    .stage-step.current .stage-label { font-weight: 700; }
+
+    .timeline-filters {
+      display: flex; gap: 12px; align-items: flex-end;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 0.75rem; color: var(--text-muted); }
+    .filter-group select {
+      background: var(--bg-card); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 10px; font-size: 0.85rem; font-family: inherit;
+      min-width: 160px;
+    }
+    .filter-group select:focus { border-color: var(--accent); outline: none; }
+    .filter-count {
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-inline-start: auto; padding: 6px 0;
+    }
+
+    .event-title-cell { display: flex; align-items: flex-start; gap: 8px; }
+    .event-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .event-title-text { font-weight: 500; font-size: 0.9rem; }
+    .event-desc {
+      font-size: 0.8rem; color: var(--text-muted);
+      margin-top: 2px; max-width: 300px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .empty-state-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+
+    .badge-stage-changed { background: rgba(212,168,67,0.2); color: var(--accent); font-size: 0.72rem; }
+    .badge-manual-note { background: rgba(27,77,62,0.2); color: var(--primary-light); font-size: 0.72rem; }
+    .badge-file-uploaded { background: rgba(90,200,250,0.2); color: #5ac8fa; font-size: 0.72rem; }
+    .badge-contract-created { background: rgba(46,160,67,0.2); color: #2ea043; font-size: 0.72rem; }
+    .badge-contract-pdf { background: rgba(248,81,73,0.2); color: #f85149; font-size: 0.72rem; }
+    .badge-follower-added { background: rgba(175,82,222,0.2); color: #af52de; font-size: 0.72rem; }
+    .badge-follower-file { background: rgba(100,210,255,0.2); color: #64d2ff; font-size: 0.72rem; }
+    .badge-system-event { background: rgba(139,149,165,0.2); color: var(--text-muted); font-size: 0.72rem; }
+    .badge-manual-event { background: rgba(27,77,62,0.2); color: var(--primary-light); font-size: 0.72rem; }
+
     .badge-draft { background: rgba(212,168,67,0.2); color: var(--accent); }
     .badge-ready-pdf { background: rgba(27,77,62,0.2); color: var(--primary-light); }
     .badge-pdf-generated { background: rgba(46,160,67,0.2); color: #2ea043; }
@@ -544,13 +718,25 @@ export class ProjectDetailsComponent implements OnInit {
   selectedContract: ContractDto | null = null;
   contractData: any = null;
 
+  // Timeline state
+  timelineEvents: TimelineEventDto[] = [];
+  timelineLoading = false;
+  timelineFilterStage = '';
+  timelineFilterType = '';
+  stages = ['NotStarted', 'Structural', 'Finishing', 'Completed'];
+  eventTypes = [
+    'StageChanged', 'ManualNote', 'FileUploaded', 'ContractCreated',
+    'ContractPdfGenerated', 'FollowerAdded', 'FollowerFileUploaded'
+  ];
+
   private projectId = '';
 
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
     private vaultService: DocumentVaultService,
-    private contractsService: ReadyContractsService
+    private contractsService: ReadyContractsService,
+    private timelineService: TimelineService
   ) {}
 
   ngOnInit(): void {
@@ -558,7 +744,7 @@ export class ProjectDetailsComponent implements OnInit {
     if (id) {
       this.projectId = id;
       this.projectService.getById(id).subscribe({
-        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); },
+        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); this.loadTimeline(); },
         error: () => { this.loading = false; }
       });
     } else {
@@ -669,6 +855,45 @@ export class ProjectDetailsComponent implements OnInit {
       Cancelled: 'contracts.statusCancelled'
     };
     return map[status] || 'contracts.statusDraft';
+  }
+
+  // ── Timeline logic ─────────────────────────────
+
+  loadTimeline(): void {
+    this.timelineLoading = true;
+    const filters: { stage?: string; eventType?: string } = {};
+    if (this.timelineFilterStage) filters.stage = this.timelineFilterStage;
+    if (this.timelineFilterType) filters.eventType = this.timelineFilterType;
+    this.timelineService.getProjectTimeline(this.projectId, filters).subscribe({
+      next: (events) => { this.timelineEvents = events; this.timelineLoading = false; },
+      error: () => { this.timelineLoading = false; }
+    });
+  }
+
+  getStageIndex(stage: string): number {
+    return this.stages.indexOf(stage);
+  }
+
+  getEventIcon(type: string): string {
+    const icons: Record<string, string> = {
+      StageChanged: '🚩', ManualNote: '📝', FileUploaded: '📤',
+      ContractCreated: '📄', ContractPdfGenerated: '📑',
+      FollowerAdded: '👤', FollowerFileUploaded: '☁️'
+    };
+    return icons[type] || '📌';
+  }
+
+  getEventTypeBadge(type: string): string {
+    const map: Record<string, string> = {
+      StageChanged: 'badge-stage-changed',
+      ManualNote: 'badge-manual-note',
+      FileUploaded: 'badge-file-uploaded',
+      ContractCreated: 'badge-contract-created',
+      ContractPdfGenerated: 'badge-contract-pdf',
+      FollowerAdded: 'badge-follower-added',
+      FollowerFileUploaded: 'badge-follower-file'
+    };
+    return map[type] || 'badge-type';
   }
 
   // ── Helpers ─────────────────────────────────────

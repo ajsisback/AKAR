@@ -25,6 +25,7 @@ public class GenerateProjectContractPdfCommandHandler
     private readonly IProjectFileRepository _fileRepository;
     private readonly IFileStorageService _storageService;
     private readonly IContractPdfGenerator _pdfGenerator;
+    private readonly IProjectTimelineEventWriter _timelineWriter;
 
     public GenerateProjectContractPdfCommandHandler(
         IProjectRepository projectRepository,
@@ -32,7 +33,8 @@ public class GenerateProjectContractPdfCommandHandler
         IProjectFolderRepository folderRepository,
         IProjectFileRepository fileRepository,
         IFileStorageService storageService,
-        IContractPdfGenerator pdfGenerator)
+        IContractPdfGenerator pdfGenerator,
+        IProjectTimelineEventWriter timelineWriter)
     {
         _projectRepository = projectRepository;
         _contractRepository = contractRepository;
@@ -40,6 +42,7 @@ public class GenerateProjectContractPdfCommandHandler
         _fileRepository = fileRepository;
         _storageService = storageService;
         _pdfGenerator = pdfGenerator;
+        _timelineWriter = timelineWriter;
     }
 
     public async Task<Result<GenerateContractPdfResponseDto>> Handle(
@@ -150,6 +153,13 @@ public class GenerateProjectContractPdfCommandHandler
             return Result<GenerateContractPdfResponseDto>.Failure("CONTRACT_NOT_ELIGIBLE_FOR_PDF", "Failed to update contract status");
 
         await _contractRepository.SaveChangesAsync(cancellationToken);
+
+        // 11. Create timeline event
+        await _timelineWriter.AddSystemEventAsync(
+            project.Id, project.OwnerId, project.CurrentStage,
+            TimelineEventType.ContractPdfGenerated, TimelineSourceType.ProjectContract, contract.Id,
+            "Contract PDF generated", $"PDF generated for: {contract.ContractTitle}",
+            cancellationToken);
 
         return Result<GenerateContractPdfResponseDto>.Success(
             new GenerateContractPdfResponseDto(

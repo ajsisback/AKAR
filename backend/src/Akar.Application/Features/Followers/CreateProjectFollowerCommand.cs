@@ -21,15 +21,18 @@ public class CreateProjectFollowerCommandHandler
     private readonly IProjectRepository _projectRepository;
     private readonly IProjectFolderRepository _folderRepository;
     private readonly IProjectFollowerRepository _followerRepository;
+    private readonly IProjectTimelineEventWriter _timelineWriter;
 
     public CreateProjectFollowerCommandHandler(
         IProjectRepository projectRepository,
         IProjectFolderRepository folderRepository,
-        IProjectFollowerRepository followerRepository)
+        IProjectFollowerRepository followerRepository,
+        IProjectTimelineEventWriter timelineWriter)
     {
         _projectRepository = projectRepository;
         _folderRepository = folderRepository;
         _followerRepository = followerRepository;
+        _timelineWriter = timelineWriter;
     }
 
     public async Task<Result<ProjectFollowerDto>> Handle(
@@ -104,6 +107,13 @@ public class CreateProjectFollowerCommandHandler
 
         await _followerRepository.AddAsync(follower, cancellationToken);
         await _followerRepository.SaveChangesAsync(cancellationToken);
+
+        // 7. Create timeline event
+        await _timelineWriter.AddSystemEventAsync(
+            project.Id, project.OwnerId, project.CurrentStage,
+            TimelineEventType.FollowerAdded, TimelineSourceType.ProjectFollower, follower.Id,
+            "Follower added", $"{request.FullName.Trim()} ({followerType})",
+            cancellationToken);
 
         return Result<ProjectFollowerDto>.Success(
             ListProjectFollowersQueryHandler.MapToDto(follower));

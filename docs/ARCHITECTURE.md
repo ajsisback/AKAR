@@ -37,8 +37,8 @@ The MVP focuses on:
 > - `flutter analyze` passes with 0 issues
 > - Available targets: Windows (desktop), Chrome (web), Edge (web)
 >
-> Flutter mobile app is fully implemented for Sprint 2 with 10 screens,
-> API integration, JWT storage, AR/EN localization (131 keys), and RTL/LTR support.
+> Flutter mobile app is fully implemented through Sprint 5 with timeline screens,
+> API integration, JWT storage, AR/EN localization (300 keys), and RTL/LTR support.
 
 ## Architecture
 
@@ -68,8 +68,8 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ### Localization Strategy
 
 - Backend: **stateless** — returns stable error codes only
-- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (260 keys AR/EN)
-- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (166 keys AR/EN)
+- Flutter (primary): **stateful** — `flutter_localizations` + `intl` + JSON translation files (300 keys AR/EN)
+- Angular (admin): **stateful** — `ngx-translate` + JSON translation files (196 keys AR/EN)
 - Arabic is the default language in both channels
 - RTL/LTR toggling handled natively in Flutter via `Directionality` (locale-driven)
 - RTL/LTR toggling in Angular via `LanguageService` setting `dir` attribute on `<html>`
@@ -94,8 +94,8 @@ Akar.Api            → Controllers, Middleware, Program.cs
 ```
 C:\Users\JSSurface2\Desktop\AKAR\App
 ├── backend/          .NET 10 Web API (Clean Architecture) — Shared API
-├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 4C complete)
-├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 4D contracts support view)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 5 complete)
+├── admin-portal/     Angular admin portal — INTERNAL USE ONLY (Sprint 5D timeline support view)
 ├── storage/          Local file storage (document vault files)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture notes
@@ -180,3 +180,20 @@ All Sprint 4 features are implemented and verified:
 | Arabic/English i18n (Angular) | ✅ Complete | 166 keys each (AR + EN) |
 | API Endpoints | ✅ Complete | 9 new endpoints (7 owner + 2 templates) |
 | Branch | ✅ Pushed | `feature/sprint-4-ready-contracts` |
+
+## Sprint 5 Completion — Project Timeline
+
+All Sprint 5 features are implemented and verified:
+
+| Component | Status | Build/Analyze |
+|-----------|--------|---------------|
+| Backend (Timeline Foundation) | ✅ Complete | `dotnet build` — success, `dotnet test` — passed |
+| Backend (Automatic Events) | ✅ Complete | Duplicate prevention, system event protection |
+| Flutter (Timeline UI) | ✅ Complete | `flutter analyze` — no issues |
+| Angular (Timeline Support) | ✅ Complete | `npm run build` — success |
+| EF Core Migration | ✅ Complete | AddProjectTimeline |
+| Security | ✅ Verified | Owner isolation, no JWT in URL, system events protected |
+| Arabic/English i18n (Flutter) | ✅ Complete | 300 keys each (AR + EN) |
+| Arabic/English i18n (Angular) | ✅ Complete | 196 keys each (AR + EN) |
+| Integration Tests | ✅ Complete | 27/27 passed |
+| Branch | ✅ Pushed | `feature/sprint-5-project-timeline` |

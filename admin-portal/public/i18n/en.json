@@ -161,5 +161,34 @@
     "statusPdfGenerated": "PDF Generated",
     "statusSignedUploaded": "Signed Uploaded",
     "statusCancelled": "Cancelled"
+  },
+  "timeline": {
+    "title": "Project Timeline",
+    "readOnly": "Support View — Read Only",
+    "currentStage": "Current Stage",
+    "events": "Events",
+    "eventTitle": "Event",
+    "eventTypeCol": "Type",
+    "stage": "Stage",
+    "source": "Source",
+    "eventDate": "Event Date",
+    "description": "Description",
+    "noEvents": "No timeline events",
+    "noEventsSub": "Events will appear when project activity occurs",
+    "systemEvent": "System",
+    "manualEvent": "Manual",
+    "filterByStage": "Filter by Stage",
+    "filterByType": "Filter by Type",
+    "allStages": "All Stages",
+    "allTypes": "All Event Types",
+    "eventType": {
+      "StageChanged": "Stage Changed",
+      "ManualNote": "Manual Note",
+      "FileUploaded": "File Uploaded",
+      "ContractCreated": "Contract Created",
+      "ContractPdfGenerated": "Contract PDF Generated",
+      "FollowerAdded": "Follower Added",
+      "FollowerFileUploaded": "Follower File Uploaded"
+    }
   }
 }

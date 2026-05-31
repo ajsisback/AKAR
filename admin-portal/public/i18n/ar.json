@@ -161,5 +161,34 @@
     "statusPdfGenerated": "تم إنشاء PDF",
     "statusSignedUploaded": "تم رفع النسخة الموقعة",
     "statusCancelled": "ملغي"
+  },
+  "timeline": {
+    "title": "مراحل المشروع",
+    "readOnly": "عرض الدعم — للقراءة فقط",
+    "currentStage": "المرحلة الحالية",
+    "events": "أحداث",
+    "eventTitle": "الحدث",
+    "eventTypeCol": "النوع",
+    "stage": "المرحلة",
+    "source": "المصدر",
+    "eventDate": "تاريخ الحدث",
+    "description": "الوصف",
+    "noEvents": "لا توجد أحداث في الجدول الزمني",
+    "noEventsSub": "ستظهر الأحداث عند إجراء أي نشاط في المشروع",
+    "systemEvent": "تلقائي",
+    "manualEvent": "يدوي",
+    "filterByStage": "تصفية حسب المرحلة",
+    "filterByType": "تصفية حسب النوع",
+    "allStages": "كل المراحل",
+    "allTypes": "كل أنواع الأحداث",
+    "eventType": {
+      "StageChanged": "تغيير مرحلة",
+      "ManualNote": "ملاحظة يدوية",
+      "FileUploaded": "رفع ملف",
+      "ContractCreated": "إنشاء عقد",
+      "ContractPdfGenerated": "توليد PDF عقد",
+      "FollowerAdded": "إضافة تابع",
+      "FollowerFileUploaded": "رفع ملف تابع"
+    }
   }
 }

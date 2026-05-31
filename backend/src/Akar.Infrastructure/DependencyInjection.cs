@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IFollowerUploadLinkRepository, FollowerUploadLinkRepository>();
         services.AddScoped<IContractTemplateRepository, ContractTemplateRepository>();
         services.AddScoped<IProjectContractRepository, ProjectContractRepository>();
+        services.AddScoped<IProjectTimelineRepository, ProjectTimelineRepository>();
 
         // Services
         services.AddScoped<IJwtTokenService, JwtTokenService>();

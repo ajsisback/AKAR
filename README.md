@@ -11,8 +11,8 @@ Project Vault + Construction Helper + Lightweight Directory
 ```
 App/
 ├── backend/          .NET 10 Web API (Clean Architecture)
-├── admin-portal/     Angular 19+ Admin Portal (AR/EN bilingual, vault support view)
-├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 2 complete)
+├── admin-portal/     Angular 19+ Admin Portal (AR/EN bilingual, timeline support view)
+├── mobile/           Flutter Mobile App (AR/EN bilingual, Sprint 5 complete)
 ├── docker/           Docker Compose (PostgreSQL)
 └── docs/             Architecture decisions & documentation
 ```
@@ -20,7 +20,7 @@ App/
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|-------|-----------| 
 | Backend API | .NET 10, ASP.NET Core |
 | Database | PostgreSQL 17 |
 | Admin Portal | Angular 19+, TypeScript |
@@ -138,7 +138,7 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 
 ---
 
-## Sprint 3 Status — Complete ✅ (Followers & Incoming Files) — Pending PR Review
+## Sprint 3 Status — Complete ✅ (Followers & Incoming Files) — Merged
 
 ### Sprint 3A — Followers Foundation ✅
 - ProjectFollower entity with FollowerType enum (Supervisor, Relative, Contractor, Designer, EngineeringOffice, Other)
@@ -186,6 +186,68 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - Rate limiting on public upload
 - File download via token
 - Contracts, Saudi building code, directory
+
+---
+
+## Sprint 4 Status — Complete ✅ (Ready Contracts) — Merged
+
+### Backend API — Ready Contracts ✅
+- ContractTemplate entity with 7 seeded Saudi construction templates
+- ProjectContract entity with CRUD + status workflow (Draft → ReadyForPdf → PdfGenerated → SignedUploaded / Cancelled)
+- PDF generation via QuestPDF with Arabic font rendering (Noto Sans Arabic)
+- Contract data stored as JSON (scope of work, payment terms, obligations)
+- 9 new API endpoints (7 owner + 2 template)
+
+### Flutter Mobile App — Contracts UI ✅
+- Contract templates list with Arabic/English names
+- Contract creation form with template fields
+- Contract details with status badges
+- PDF generation and download
+- 260 AR/EN localization keys each
+
+### Angular Admin Portal — Contracts Support View ✅
+- Read-only contracts section in project details
+- Contract list table with status badges
+- Contract detail panel with all fields + PDF download
+- 166 AR/EN localization keys each
+
+---
+
+## Sprint 5 Status — Complete ✅ (Project Timeline)
+
+### Sprint 5A — Timeline Foundation ✅
+- ProjectTimelineEvent entity with DDD patterns
+- TimelineEventType and TimelineSourceType enums
+- Stage APIs (PUT update stage) + Timeline APIs (GET list, POST note, DELETE note)
+- System StageChanged events auto-created on stage update
+- EF Core migration: AddProjectTimeline
+
+### Sprint 5B — Automatic Timeline Events ✅
+- Automatic events for: file upload, contract created, contract PDF, follower added, follower file uploaded
+- Duplicate prevention using SourceId + SourceType
+- System events protected from deletion
+
+### Sprint 5C — Flutter Timeline UI ✅
+- Timeline screen with stage progress card, change stage dialog, manual note CRUD
+- Event list with type icons, color coding, system/manual badges
+- Stage and event type filters, pull-to-refresh
+- 40 AR/EN localization keys each (300 total per language)
+
+### Sprint 5D — Angular Support View & Documentation ✅
+- Read-only timeline support section in project details
+- Stage progress bar, timeline events table with filters
+- TimelineService with getProjectTimeline method
+- 30 AR/EN localization keys each (196 total per language)
+- Sprint 5 documentation and PR readiness
+
+### Deferred
+- Sub-stages
+- Stage approvals
+- Task management
+- Gantt charts
+- Advanced scheduling
+- Timeline attachments
+- Notifications
 
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout

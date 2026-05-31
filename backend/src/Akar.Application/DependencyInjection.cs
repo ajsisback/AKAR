@@ -1,4 +1,6 @@
 using Akar.Application.Behaviors;
+using Akar.Application.Interfaces;
+using Akar.Application.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,9 @@ public static class DependencyInjection
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        // Application services
+        services.AddScoped<IProjectTimelineEventWriter, ProjectTimelineEventWriter>();
 
         return services;
     }
