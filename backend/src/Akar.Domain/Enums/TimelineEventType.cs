@@ -10,6 +10,7 @@ public enum TimelineEventType
     FileUploaded,
     ContractCreated,
     ContractPdfGenerated,
+    ContractSignedUploaded,
     FollowerAdded,
     FollowerFileUploaded
 }
