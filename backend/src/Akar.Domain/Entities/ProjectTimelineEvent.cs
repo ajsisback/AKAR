@@ -82,6 +82,36 @@ public class ProjectTimelineEvent : Entity<Guid>
     }
 
     /// <summary>
+    /// Creates a generic system-generated timeline event.
+    /// Used for file uploads, contract events, follower events, etc.
+    /// </summary>
+    public static ProjectTimelineEvent CreateSystemEvent(
+        Guid projectId,
+        Guid ownerId,
+        CurrentStage stage,
+        TimelineEventType eventType,
+        TimelineSourceType sourceType,
+        Guid sourceId,
+        string title,
+        string? description)
+    {
+        return new ProjectTimelineEvent(Guid.NewGuid())
+        {
+            ProjectId = projectId,
+            OwnerId = ownerId,
+            EventType = eventType,
+            Stage = stage,
+            Title = title,
+            Description = description,
+            EventDateUtc = DateTime.UtcNow,
+            SourceType = sourceType,
+            SourceId = sourceId,
+            IsSystemGenerated = true,
+            IsDeleted = false
+        };
+    }
+
+    /// <summary>
     /// Soft-deletes the event. Only manual events can be deleted.
     /// Returns false if the event is system-generated.
     /// </summary>

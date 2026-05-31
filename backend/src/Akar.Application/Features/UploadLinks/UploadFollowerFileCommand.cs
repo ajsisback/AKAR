@@ -25,6 +25,7 @@ public class UploadFollowerFileCommandHandler
     private readonly IProjectFolderRepository _folderRepository;
     private readonly IProjectFileRepository _fileRepository;
     private readonly IFileStorageService _storageService;
+    private readonly IProjectTimelineEventWriter _timelineWriter;
 
     public UploadFollowerFileCommandHandler(
         IFollowerUploadLinkRepository linkRepository,
@@ -32,7 +33,8 @@ public class UploadFollowerFileCommandHandler
         IProjectRepository projectRepository,
         IProjectFolderRepository folderRepository,
         IProjectFileRepository fileRepository,
-        IFileStorageService storageService)
+        IFileStorageService storageService,
+        IProjectTimelineEventWriter timelineWriter)
     {
         _linkRepository = linkRepository;
         _followerRepository = followerRepository;
@@ -40,6 +42,7 @@ public class UploadFollowerFileCommandHandler
         _folderRepository = folderRepository;
         _fileRepository = fileRepository;
         _storageService = storageService;
+        _timelineWriter = timelineWriter;
     }
 
     public async Task<Result<FollowerPublicUploadResultDto>> Handle(
@@ -123,6 +126,13 @@ public class UploadFollowerFileCommandHandler
 
         await _fileRepository.SaveChangesAsync(cancellationToken);
         await _linkRepository.SaveChangesAsync(cancellationToken);
+
+        // 8. Create timeline event (scoped to project owner)
+        await _timelineWriter.AddSystemEventAsync(
+            link.ProjectId, link.OwnerId, project.CurrentStage,
+            TimelineEventType.FollowerFileUploaded, TimelineSourceType.ProjectFile, projectFile.Id,
+            "Follower file uploaded", $"{follower.FullName}: {originalFileName}",
+            cancellationToken);
 
         return Result<FollowerPublicUploadResultDto>.Success(
             new FollowerPublicUploadResultDto(

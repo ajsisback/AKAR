@@ -104,15 +104,18 @@ public class CreateProjectContractCommandHandler
     private readonly IProjectRepository _projectRepo;
     private readonly IContractTemplateRepository _templateRepo;
     private readonly IProjectContractRepository _contractRepo;
+    private readonly IProjectTimelineEventWriter _timelineWriter;
 
     public CreateProjectContractCommandHandler(
         IProjectRepository projectRepo,
         IContractTemplateRepository templateRepo,
-        IProjectContractRepository contractRepo)
+        IProjectContractRepository contractRepo,
+        IProjectTimelineEventWriter timelineWriter)
     {
         _projectRepo = projectRepo;
         _templateRepo = templateRepo;
         _contractRepo = contractRepo;
+        _timelineWriter = timelineWriter;
     }
 
     public async Task<Result<ProjectContractDto>> Handle(
@@ -158,6 +161,16 @@ public class CreateProjectContractCommandHandler
 
         await _contractRepo.AddAsync(contract, cancellationToken);
         await _contractRepo.SaveChangesAsync(cancellationToken);
+
+        // 7. Create timeline event
+        var description = !string.IsNullOrWhiteSpace(request.PartyName)
+            ? $"{request.ContractTitle} - {request.PartyName}"
+            : request.ContractTitle;
+        await _timelineWriter.AddSystemEventAsync(
+            project.Id, project.OwnerId, project.CurrentStage,
+            TimelineEventType.ContractCreated, TimelineSourceType.ProjectContract, contract.Id,
+            "Contract created", description,
+            cancellationToken);
 
         return Result<ProjectContractDto>.Success(
             ListProjectContractsQueryHandler.MapToDto(contract));

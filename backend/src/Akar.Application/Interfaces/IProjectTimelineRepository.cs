@@ -21,5 +21,10 @@ public interface IProjectTimelineRepository
 
     Task AddAsync(ProjectTimelineEvent timelineEvent, CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsForSourceAsync(
+        Guid projectId, Guid ownerId,
+        TimelineEventType eventType, TimelineSourceType sourceType, Guid sourceId,
+        CancellationToken cancellationToken = default);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

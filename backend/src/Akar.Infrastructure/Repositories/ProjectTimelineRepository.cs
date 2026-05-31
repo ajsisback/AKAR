@@ -57,6 +57,16 @@ public class ProjectTimelineRepository : IProjectTimelineRepository
     public async Task AddAsync(ProjectTimelineEvent timelineEvent, CancellationToken cancellationToken = default) =>
         await _db.ProjectTimelineEvents.AddAsync(timelineEvent, cancellationToken);
 
+    public async Task<bool> ExistsForSourceAsync(
+        Guid projectId, Guid ownerId,
+        TimelineEventType eventType, TimelineSourceType sourceType, Guid sourceId,
+        CancellationToken cancellationToken = default) =>
+        await _db.ProjectTimelineEvents.AnyAsync(
+            e => e.ProjectId == projectId && e.OwnerId == ownerId
+              && e.EventType == eventType && e.SourceType == sourceType
+              && e.SourceId == sourceId && !e.IsDeleted,
+            cancellationToken);
+
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         await _db.SaveChangesAsync(cancellationToken);
 }
