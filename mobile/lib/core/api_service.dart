@@ -498,6 +498,28 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 6 — Signed Contract Upload API
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Uploads a signed contract PDF file using multipart/form-data with JWT auth.
+  Future<Map<String, dynamic>> uploadSignedContractFile(
+      String projectId, String contractId, Uint8List fileBytes, String fileName) async {
+    final uri = Uri.parse('$baseUrl/api/projects/$projectId/contracts/$contractId/signed-file');
+    final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(_authOnly);
+    request.files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: fileName));
+
+    final streamed = await request.send();
+    final resp = await http.Response.fromStream(streamed);
+
+    if (resp.statusCode == 200 || resp.statusCode == 201) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // Sprint 5 — Project Timeline & Stage API
   // ═══════════════════════════════════════════════════════════════
 
