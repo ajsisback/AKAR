@@ -18,6 +18,7 @@ export interface ContractDto {
   status: string;
   contractDataJson: string | null;
   pdfFileId: string | null;
+  signedFileId?: string | null;
   templateNameAr: string | null;
   templateNameEn: string | null;
   createdAtUtc: string;
@@ -46,6 +47,14 @@ export class ReadyContractsService {
   downloadContractPdf(projectId: string, pdfFileId: string): Observable<Blob> {
     return this.http.get(
       `${environment.apiUrl}/projects/${projectId}/files/${pdfFileId}/download`,
+      { responseType: 'blob' }
+    );
+  }
+
+  /** Download signed contract PDF as Blob — uses Authorization header via interceptor, never JWT in URL. */
+  downloadSignedContractPdf(projectId: string, signedFileId: string): Observable<Blob> {
+    return this.http.get(
+      `${environment.apiUrl}/projects/${projectId}/files/${signedFileId}/download`,
       { responseType: 'blob' }
     );
   }
