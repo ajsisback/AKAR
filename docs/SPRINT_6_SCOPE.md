@@ -7,9 +7,9 @@ Sprint 6 adds the ability for project owners to take a system-generated PDF cont
 
 ## Sprint 6A (Backend)
 - Add `SignedFileId` property to the `ProjectContract` entity.
-- Add new API endpoint `POST /api/projects/{projectId}/contracts/{contractId}/upload-signed`.
+- Add new API endpoint `POST /api/projects/{projectId}/contracts/{contractId}/signed-file`.
 - Process: Use existing `IFileStorageService` and `ProjectFile` mechanisms to store the uploaded PDF.
-- Security: Enforce 10MB limit, PDF only. Enforce strict status validation (only allow upload if contract is in `PdfGenerated` state).
+- Security: Enforce 20MB limit, PDF only. Enforce strict status validation (only allow upload if contract is in `PdfGenerated` state).
 - Ensure file downloads use the existing secure endpoint (`/api/projects/{projectId}/files/{fileId}/download`).
 
 ## Sprint 6B (Flutter)
