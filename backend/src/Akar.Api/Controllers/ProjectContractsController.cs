@@ -133,6 +133,34 @@ public class ProjectContractsController : ControllerBase
             : MapError(result.ErrorCode!, result.ErrorMessage!);
     }
 
+    /// <summary>Uploads a signed contract PDF file and links it to the contract.</summary>
+    [HttpPost("{contractId:guid}/signed-file")]
+    public async Task<IActionResult> UploadSignedFile(
+        Guid projectId,
+        Guid contractId,
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        var ownerId = GetOwnerId();
+        if (ownerId is null) return Unauthorized();
+
+        if (file is null || file.Length == 0)
+            return BadRequest(new ProblemDetails { Status = 400, Title = "SIGNED_FILE_REQUIRED", Detail = "A signed contract PDF file is required" });
+
+        var command = new UploadSignedContractFileCommand(
+            projectId, contractId, ownerId.Value,
+            file.FileName,
+            file.ContentType,
+            file.Length,
+            file.OpenReadStream());
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : MapError(result.ErrorCode!, result.ErrorMessage!);
+    }
+
     private Guid? GetOwnerId()
     {
         var sub = User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -146,7 +174,10 @@ public class ProjectContractsController : ControllerBase
             or "CONTRACTS_FOLDER_NOT_FOUND"
             => NotFound(new ProblemDetails { Status = 404, Title = code, Detail = detail }),
         "CONTRACT_NOT_ELIGIBLE_FOR_PDF" or "CONTRACT_CANCELLED"
+            or "CONTRACT_NOT_PDF_GENERATED" or "CONTRACT_ALREADY_SIGNED"
             => Conflict(new ProblemDetails { Status = 409, Title = code, Detail = detail }),
+        "SIGNED_FILE_MUST_BE_PDF" or "SIGNED_FILE_TOO_LARGE" or "SIGNED_FILE_REQUIRED"
+            => BadRequest(new ProblemDetails { Status = 400, Title = code, Detail = detail }),
         _ => BadRequest(new ProblemDetails { Status = 400, Title = code, Detail = detail })
     };
 }

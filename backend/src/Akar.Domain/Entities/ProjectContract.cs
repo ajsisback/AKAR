@@ -129,6 +129,22 @@ public class ProjectContract : Entity<Guid>
         return true;
     }
 
+    /// <summary>
+    /// Links the signed file and advances status to SignedUploaded.
+    /// Allowed only when Status == PdfGenerated, PdfFileId exists, and SignedFileId is null.
+    /// </summary>
+    public bool MarkSignedUploaded(Guid signedFileId)
+    {
+        if (IsDeleted) return false;
+        if (Status != ContractStatus.PdfGenerated) return false;
+        if (PdfFileId is null) return false;
+        if (SignedFileId is not null) return false;
+        SignedFileId = signedFileId;
+        Status = ContractStatus.SignedUploaded;
+        SetUpdatedAt();
+        return true;
+    }
+
     private ProjectContract(Guid id) : base(id) { }
 
     private static DateTime? ToUtc(DateTime? dt) =>

@@ -22,7 +22,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
   static const _stages = ['NotStarted', 'Structural', 'Finishing', 'Completed'];
   static const _eventTypes = [
     'StageChanged', 'ManualNote', 'FileUploaded', 'ContractCreated',
-    'ContractPdfGenerated', 'FollowerAdded', 'FollowerFileUploaded',
+    'ContractPdfGenerated', 'ContractSignedUploaded', 'FollowerAdded', 'FollowerFileUploaded',
   ];
 
   @override
@@ -77,6 +77,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       case 'FileUploaded': return l.t('timeline_file_uploaded');
       case 'ContractCreated': return l.t('timeline_contract_created');
       case 'ContractPdfGenerated': return l.t('timeline_contract_pdf_generated');
+      case 'ContractSignedUploaded': return l.t('timeline_contract_signed_uploaded');
       case 'FollowerAdded': return l.t('timeline_follower_added');
       case 'FollowerFileUploaded': return l.t('timeline_follower_file_uploaded');
       default: return t;
@@ -90,6 +91,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       case 'FileUploaded': return Icons.upload_file;
       case 'ContractCreated': return Icons.description;
       case 'ContractPdfGenerated': return Icons.picture_as_pdf;
+      case 'ContractSignedUploaded': return Icons.draw;
       case 'FollowerAdded': return Icons.person_add;
       case 'FollowerFileUploaded': return Icons.cloud_upload;
       default: return Icons.event;
@@ -103,6 +105,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       case 'FileUploaded': return const Color(0xFF5AC8FA);
       case 'ContractCreated': return AkarTheme.success;
       case 'ContractPdfGenerated': return const Color(0xFFFF6B6B);
+      case 'ContractSignedUploaded': return AkarTheme.accent;
       case 'FollowerAdded': return const Color(0xFFAF52DE);
       case 'FollowerFileUploaded': return const Color(0xFF64D2FF);
       default: return AkarTheme.textMuted;

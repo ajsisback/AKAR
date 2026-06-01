@@ -392,6 +392,7 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
               <th>{{ 'contracts.contractValue' | translate }}</th>
               <th>{{ 'contracts.status' | translate }}</th>
               <th>{{ 'contracts.pdf' | translate }}</th>
+              <th>{{ 'contracts.signed' | translate }}</th>
               <th>{{ 'contracts.createdAt' | translate }}</th>
               <th></th>
             </tr>
@@ -410,6 +411,10 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
               <td>
                 <span *ngIf="c.pdfFileId" class="badge badge-pdf-yes">{{ 'contracts.pdfAvailable' | translate }}</span>
                 <span *ngIf="!c.pdfFileId" class="muted">{{ 'contracts.pdfNotAvailable' | translate }}</span>
+              </td>
+              <td>
+                <span *ngIf="c.signedFileId" class="badge badge-signed">{{ 'contracts.signedAvailable' | translate }}</span>
+                <span *ngIf="!c.signedFileId" class="muted">{{ 'contracts.signedNotAvailable' | translate }}</span>
               </td>
               <td>{{ c.createdAtUtc | date:'mediumDate' }}</td>
               <td>
@@ -471,6 +476,10 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
             <label>{{ 'contracts.createdAt' | translate }}</label>
             <div class="value">{{ selectedContract.createdAtUtc | date:'medium' }}</div>
           </div>
+          <div class="detail-item" *ngIf="selectedContract.signedFileId">
+            <label>{{ 'contracts.signedFileId' | translate }}</label>
+            <div class="value">{{ selectedContract.signedFileId }}</div>
+          </div>
         </div>
 
         <!-- Contract Data Sections -->
@@ -504,9 +513,12 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
         </div>
 
         <!-- PDF Download -->
-        <div class="contract-pdf-actions" *ngIf="selectedContract.pdfFileId">
-          <button class="btn btn-accent" (click)="downloadContractPdf()">
+        <div class="contract-pdf-actions" *ngIf="selectedContract.pdfFileId || selectedContract.signedFileId">
+          <button *ngIf="selectedContract.pdfFileId" class="btn btn-accent" (click)="downloadContractPdf()" style="margin-inline-end: 12px;">
             ⬇️ {{ 'contracts.downloadPdf' | translate }}
+          </button>
+          <button *ngIf="selectedContract.signedFileId" class="btn btn-signed" (click)="downloadSignedContractPdf()">
+            ⬇️ {{ 'contracts.downloadSignedPdf' | translate }}
           </button>
         </div>
       </div>
@@ -696,6 +708,14 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
       font-family: inherit; transition: opacity 0.2s;
     }
     .btn-accent:hover { opacity: 0.85; }
+    
+    .btn-signed {
+      background: #3fb950; color: #ffffff;
+      border: none; padding: 10px 20px; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: opacity 0.2s;
+    }
+    .btn-signed:hover { opacity: 0.85; }
   `]
 })
 export class ProjectDetailsComponent implements OnInit {
@@ -826,6 +846,23 @@ export class ProjectDetailsComponent implements OnInit {
         const a = document.createElement('a');
         a.href = url;
         a.download = (this.selectedContract?.contractTitle || 'contract') + '.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
+
+  downloadSignedContractPdf(): void {
+    if (!this.selectedContract?.signedFileId) return;
+    this.contractsService.downloadSignedContractPdf(this.projectId, this.selectedContract.signedFileId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (this.selectedContract?.contractTitle || 'signed_contract') + '.pdf';
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();

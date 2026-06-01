@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:js_interop';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 import '../core/api_service.dart';
@@ -19,6 +21,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
   Map<String, dynamic>? _contract;
   bool _loading = true;
   bool _pdfGenerating = false;
+  bool _signedUploading = false;
 
   @override
   void initState() { super.initState(); _load(); }
@@ -73,6 +76,18 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
       case 'STORAGE_SAVE_FAILED': return l.t('err_storage_save_failed');
       case 'PDF_FILE_METADATA_FAILED': return l.t('err_pdf_file_metadata_failed');
       case 'PROJECT_NOT_FOUND': return l.t('err_project_not_found');
+      // Sprint 6 — Signed contract upload error codes
+      case 'SIGNED_FILE_REQUIRED': return l.t('err_signed_file_required');
+      case 'SIGNED_FILE_MUST_BE_PDF': return l.t('err_signed_file_must_be_pdf');
+      case 'SIGNED_FILE_TOO_LARGE': return l.t('err_signed_file_too_large');
+      case 'CONTRACT_ALREADY_SIGNED': return l.t('err_contract_already_signed');
+      case 'CONTRACT_NOT_PDF_GENERATED':
+        // Guard-ordering note: backend may return this when status is already SignedUploaded
+        if (_contract?['status'] == 'SignedUploaded') {
+          return l.t('err_signed_status_mismatch');
+        }
+        return l.t('err_contract_not_pdf_generated');
+      case 'SIGNED_FILE_METADATA_FAILED': return l.t('err_storage_save_failed');
       default: return l.t('err_generic');
     }
   }
@@ -80,6 +95,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
   bool get _isDraft => _contract?['status'] == 'Draft';
   bool get _canGeneratePdf => _contract?['status'] == 'Draft' || _contract?['status'] == 'ReadyForPdf';
   bool get _hasPdf => _contract?['pdfFileId'] != null && _contract!['pdfFileId'].toString().isNotEmpty;
+  bool get _hasSignedFile => _contract?['signedFileId'] != null && _contract!['signedFileId'].toString().isNotEmpty;
 
   Future<void> _editContract() async {
     final result = await Navigator.push<bool>(context, MaterialPageRoute(
@@ -201,6 +217,307 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.t('err_generic')), backgroundColor: AkarTheme.danger));
       }
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Sprint 6 — Signed Contract Upload
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<void> _uploadSignedContract() async {
+    final l = AppLocalizations.of(context);
+
+    // Step 1: Show explanation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AkarTheme.bgCard,
+        title: Row(children: [
+          const Icon(Icons.upload_file, color: AkarTheme.accent, size: 22),
+          const SizedBox(width: 8),
+          Expanded(child: Text(l.t('signed_upload_confirm'), style: const TextStyle(fontSize: 16))),
+        ]),
+        content: Text(l.t('signed_upload_explanation'), style: const TextStyle(fontSize: 14, height: 1.5)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.t('btn_cancel'))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.t('btn_confirm'), style: const TextStyle(color: AkarTheme.accent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    // Step 2: Pick file using file_picker
+    final result = await FilePicker.platform.pickFiles(
+      withData: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result == null || result.files.isEmpty || result.files.first.bytes == null) return;
+
+    final pickedFile = result.files.first;
+    final fileName = pickedFile.name;
+    final fileBytes = pickedFile.bytes!;
+
+    // Step 3: Client-side extension validation
+    if (!fileName.toLowerCase().endsWith('.pdf')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.t('err_signed_file_must_be_pdf')), backgroundColor: AkarTheme.danger),
+        );
+      }
+      return;
+    }
+
+    // Step 4: Show selected file info and get final confirmation
+    if (!mounted) return;
+    final uploadConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AkarTheme.bgCard,
+        title: Text(l.t('signed_pdf_selected'), style: const TextStyle(fontSize: 16)),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Icon(Icons.picture_as_pdf, color: AkarTheme.danger, size: 32),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(fileName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              const SizedBox(height: 4),
+              Text('${(fileBytes.length / 1024).toStringAsFixed(1)} KB', style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+            ])),
+          ]),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AkarTheme.warning.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AkarTheme.warning.withValues(alpha: 0.3)),
+            ),
+            child: Row(children: [
+              const Icon(Icons.info_outline, size: 16, color: AkarTheme.warning),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.t('signed_cannot_replace'), style: const TextStyle(fontSize: 12, color: AkarTheme.warning))),
+            ]),
+          ),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.t('btn_cancel'))),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AkarTheme.accent, foregroundColor: AkarTheme.bgDark),
+            child: Text(l.t('signed_upload_button')),
+          ),
+        ],
+      ),
+    );
+    if (uploadConfirmed != true || !mounted) return;
+
+    // Step 5: Upload
+    setState(() => _signedUploading = true);
+    try {
+      final api = ApiService();
+      await api.init();
+      await api.uploadSignedContractFile(
+        widget.projectId,
+        widget.contractId,
+        Uint8List.fromList(fileBytes),
+        fileName,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.t('signed_upload_success')), backgroundColor: AkarTheme.success),
+        );
+        _load(); // Refresh to get new status + signedFileId
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_mapError(e.code, l)), backgroundColor: AkarTheme.danger),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.t('err_generic')), backgroundColor: AkarTheme.danger),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _signedUploading = false);
+    }
+  }
+
+  Future<void> _downloadSignedPdf() async {
+    final l = AppLocalizations.of(context);
+    final signedFileId = _contract!['signedFileId'] as String;
+    final fileName = '${_contract!['contractTitle'] ?? 'contract'}_signed.pdf';
+
+    try {
+      final api = ApiService();
+      await api.init();
+      final bytes = await api.downloadFileBytes(widget.projectId, signedFileId);
+
+      // Secure Blob download — same pattern as generated PDF download
+      final jsArray = bytes.toJS;
+      final blob = web.Blob([jsArray].toJS, web.BlobPropertyBag(type: 'application/pdf'));
+      final url = web.URL.createObjectURL(blob);
+      final anchor = web.document.createElement('a') as web.HTMLAnchorElement
+        ..href = url
+        ..download = fileName
+        ..style.display = 'none';
+      web.document.body?.append(anchor);
+      anchor.click();
+      anchor.remove();
+      web.URL.revokeObjectURL(url);
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_mapError(e.code, l)), backgroundColor: AkarTheme.danger));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.t('err_generic')), backgroundColor: AkarTheme.danger));
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Build — Signed Contract Section Widget
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildSignedContractSection(AppLocalizations l) {
+    final status = _contract?['status'] as String?;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AkarTheme.bgCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AkarTheme.accent.withValues(alpha: 0.25)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // Section header
+        Row(children: [
+          Icon(Icons.draw, color: AkarTheme.accent, size: 20),
+          const SizedBox(width: 8),
+          Text(l.t('signed_contract'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AkarTheme.accent)),
+        ]),
+        const SizedBox(height: 12),
+
+        // Status indicator
+        Row(children: [
+          Text(l.t('signed_current_status'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: _statusColor(status).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              _statusLabel(status, l),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11, color: _statusColor(status)),
+            ),
+          ),
+        ]),
+
+        // SignedFileId indicator
+        if (_hasSignedFile) ...[
+          const SizedBox(height: 6),
+          Row(children: [
+            Text(l.t('signed_file_id'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${_contract!['signedFileId'].toString().substring(0, 8)}...',
+                style: const TextStyle(fontSize: 11, color: AkarTheme.textSecondary, fontFamily: 'monospace'),
+              ),
+            ),
+          ]),
+        ],
+
+        const SizedBox(height: 14),
+
+        // Content based on status
+        if (status == 'Draft' || status == 'ReadyForPdf') ...[
+          // Cannot upload yet — show helper message
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AkarTheme.warning.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Icon(Icons.info_outline, size: 16, color: AkarTheme.warning),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.t('signed_generate_pdf_first'), style: const TextStyle(fontSize: 12, color: AkarTheme.textSecondary))),
+            ]),
+          ),
+        ] else if (status == 'PdfGenerated') ...[
+          // Can upload signed contract
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: _signedUploading
+                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AkarTheme.bgDark))
+                  : const Icon(Icons.upload_file),
+              label: Text(l.t('signed_upload_button')),
+              onPressed: _signedUploading ? null : _uploadSignedContract,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AkarTheme.accent,
+                foregroundColor: AkarTheme.bgDark,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ] else if (status == 'SignedUploaded') ...[
+          // Signed file uploaded — show success and download
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AkarTheme.success.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(children: [
+              const Icon(Icons.check_circle, size: 18, color: AkarTheme.success),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.t('signed_version_uploaded'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AkarTheme.success))),
+            ]),
+          ),
+          if (_hasSignedFile) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.download, size: 18),
+                label: Text(l.t('signed_download_button')),
+                onPressed: _downloadSignedPdf,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AkarTheme.accent,
+                  side: BorderSide(color: AkarTheme.accent.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+            ),
+          ],
+        ] else if (status == 'Cancelled') ...[
+          // Read-only, no upload
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AkarTheme.danger.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(children: [
+              const Icon(Icons.block, size: 16, color: AkarTheme.danger),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l.t('err_contract_cancelled'), style: const TextStyle(fontSize: 12, color: AkarTheme.textSecondary))),
+            ]),
+          ),
+        ],
+      ]),
+    );
   }
 
   @override
@@ -327,7 +644,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Action buttons
+          // Action buttons — Generate PDF & Download generated PDF
           if (_canGeneratePdf)
             ElevatedButton.icon(
               icon: _pdfGenerating
@@ -347,6 +664,12 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: AkarTheme.accent, foregroundColor: AkarTheme.bgDark),
             ),
           ],
+
+          // ═══════════════════════════════════════════════════
+          // Sprint 6 — Signed Contract Section
+          // ═══════════════════════════════════════════════════
+          const SizedBox(height: 20),
+          _buildSignedContractSection(l),
 
           const SizedBox(height: 30),
         ]),

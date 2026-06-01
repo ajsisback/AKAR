@@ -249,6 +249,27 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - Timeline attachments
 - Notifications
 
+---
+
+## Sprint 6 Status — Complete ✅ (Signed Contract Upload)
+
+### Backend API — Signed Contracts ✅
+- Added `SignedFileId` to `ProjectContract`.
+- New `POST /api/projects/{projectId}/contracts/{contractId}/upload-signed` endpoint.
+- File upload integration with `IFileStorageService` (10MB limit, PDF only).
+- Contract status transitions to `SignedUploaded` automatically.
+
+### Flutter Mobile App — Contracts UI Updates ✅
+- Owner-facing UI to upload a manually signed PDF when contract is `PdfGenerated`.
+- Added "Download Signed Version" button when contract is `SignedUploaded`.
+- Integrated `file_picker` for PDF selection with size and extension validation.
+- AR/EN localization for new statuses and buttons.
+
+### Angular Admin Portal — Support View Updates ✅
+- Read-only visibility of `SignedUploaded` status.
+- Added "Signed" column in contract list and "Download Signed PDF" button in contract details.
+- Ensured backend file download endpoints are used securely via Blob URLs (no JWTs in URLs).
+
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout
 - **English** — LTR layout
