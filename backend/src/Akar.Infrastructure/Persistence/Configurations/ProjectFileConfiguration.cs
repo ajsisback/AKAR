@@ -90,6 +90,18 @@ public class ProjectFileConfiguration : IEntityTypeConfiguration<ProjectFile>
         builder.HasIndex(f => new { f.ProjectId, f.FolderId });
         builder.HasIndex(f => f.IsDeleted);
 
+        // Sprint 7A: Search-optimized indexes
+        builder.HasIndex(f => new { f.ProjectId, f.OwnerId, f.IsDeleted, f.CreatedAtUtc })
+            .HasDatabaseName("ix_project_files_search_base");
+        builder.HasIndex(f => f.FileCategory)
+            .HasDatabaseName("ix_project_files_file_category");
+        builder.HasIndex(f => f.FileExtension)
+            .HasDatabaseName("ix_project_files_file_extension");
+        builder.HasIndex(f => f.OriginalFileName)
+            .HasDatabaseName("ix_project_files_original_file_name");
+        builder.HasIndex(f => f.CreatedAtUtc)
+            .HasDatabaseName("ix_project_files_created_at_utc");
+
         // Relationships
         builder.HasOne(f => f.Project)
             .WithMany()

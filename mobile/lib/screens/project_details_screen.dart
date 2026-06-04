@@ -4,6 +4,7 @@ import '../core/l10n.dart';
 import '../core/theme.dart';
 import 'contracts_screen.dart';
 import 'document_vault_screen.dart';
+import 'file_search_screen.dart';
 import 'followers_screen.dart';
 import 'timeline_screen.dart';
 
@@ -141,10 +142,44 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                 ),
               ),
 
-              // Followers & Inbox entry
+              // File Search entry
               const SizedBox(height: 10),
+              Card(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => FileSearchScreen(
+                      projectId: widget.projectId,
+                    ),
+                  )),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(
+                          color: AkarTheme.primaryLight.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.search, color: AkarTheme.primaryLight, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.t('search_title'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                          const SizedBox(height: 2),
+                          Text(l.t('search_subtitle'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 12)),
+                        ],
+                      )),
+                      const Icon(Icons.chevron_right, color: AkarTheme.textMuted),
+                    ]),
+                  ),
+                ),
+              ),
 
               // Ready Contracts entry
+              const SizedBox(height: 10),
               Card(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),

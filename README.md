@@ -270,6 +270,25 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - Added "Signed" column in contract list and "Download Signed PDF" button in contract details.
 - Ensured backend file download endpoints are used securely via Blob URLs (no JWTs in URLs).
 
+---
+
+## Sprint 7 Status — Complete ✅ (File Search & Preview)
+
+### Backend API — File Search ✅
+- Added `GET /api/projects/{projectId}/files/search` endpoint.
+- File search with filters (query, category, extension) and pagination.
+- Secure owner isolation and omitted internal storage paths.
+
+### Flutter Mobile App — Owner Search UI ✅
+- File search UI accessed from Project Details.
+- Dynamic filters and "Load More" pagination.
+- Secure image preview and PDF/document downloads via Blob URLs.
+
+### Angular Admin Portal — Support Search View ✅
+- Read-only file search support view in the Admin Portal.
+- Search filters (query, category, extension, sort).
+- Safe read-only file metadata inspection and secure downloads.
+
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout
 - **English** — LTR layout

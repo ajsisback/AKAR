@@ -195,6 +195,9 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
         <button class="vault-tab" [class.active]="vaultTab === 'folders'" (click)="vaultTab = 'folders'; selectedFolder = null; folderFiles = []">
           {{ 'vault.folders' | translate }}
         </button>
+        <button class="vault-tab" [class.active]="vaultTab === 'search'" (click)="vaultTab = 'search'; searchFiles()">
+          {{ 'vault.searchFiles' | translate }}
+        </button>
         <button class="vault-tab" [class.active]="vaultTab === 'trash'" (click)="vaultTab = 'trash'; loadTrash()">
           {{ 'vault.trash' | translate }}
         </button>
@@ -291,6 +294,99 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- SEARCH TAB -->
+      <div class="vault-panel" *ngIf="vaultTab === 'search'">
+        <div class="card vault-card">
+          <div class="timeline-filters">
+            <div class="filter-group" style="flex: 1; min-width: 200px;">
+              <label>{{ 'vault.searchHint' | translate }}</label>
+              <input type="text" [(ngModel)]="searchQuery" [placeholder]="'vault.searchHint' | translate" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; width: 100%;">
+            </div>
+            <div class="filter-group">
+              <label>{{ 'vault.fileCategory' | translate }}</label>
+              <select [(ngModel)]="searchCategory">
+                <option value="">{{ 'vault.allCategories' | translate }}</option>
+                <option value="Document">{{ 'vault.cat_document' | translate }}</option>
+                <option value="Image">{{ 'vault.cat_image' | translate }}</option>
+                <option value="Spreadsheet">{{ 'vault.cat_spreadsheet' | translate }}</option>
+                <option value="Presentation">{{ 'vault.cat_presentation' | translate }}</option>
+                <option value="Archive">{{ 'vault.cat_archive' | translate }}</option>
+                <option value="Video">{{ 'vault.cat_video' | translate }}</option>
+                <option value="Other">{{ 'vault.cat_other' | translate }}</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>{{ 'vault.extension' | translate }}</label>
+              <input type="text" [(ngModel)]="searchExtension" placeholder="pdf, png..." style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; width: 80px;">
+            </div>
+            <div class="filter-group">
+              <label>{{ 'vault.sortBy' | translate }}</label>
+              <select [(ngModel)]="searchSortBy">
+                <option value="createdAtUtc">{{ 'vault.sortDate' | translate }}</option>
+                <option value="originalFileName">{{ 'vault.sortName' | translate }}</option>
+                <option value="fileSizeBytes">{{ 'vault.sortSize' | translate }}</option>
+                <option value="fileExtension">{{ 'vault.sortExt' | translate }}</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>{{ 'vault.sortDirection' | translate }}</label>
+              <select [(ngModel)]="searchSortDirection">
+                <option value="desc">{{ 'vault.sortDesc' | translate }}</option>
+                <option value="asc">{{ 'vault.sortAsc' | translate }}</option>
+              </select>
+            </div>
+            <div class="filter-group" style="flex-direction: row; align-items: center; gap: 8px; padding-bottom: 6px;">
+              <input type="checkbox" id="includeDeleted" [(ngModel)]="searchIncludeDeleted">
+              <label for="includeDeleted" style="margin:0;">{{ 'vault.includeDeleted' | translate }}</label>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-end; padding-bottom: 2px;">
+              <button class="btn-sm btn-outline" (click)="clearSearchFilters()">{{ 'vault.clearFilters' | translate }}</button>
+              <button class="btn-sm btn-accent" style="color:var(--bg-dark); border:none; background:var(--accent);" (click)="searchFiles()">{{ 'vault.applyFilters' | translate }}</button>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="!searchLoading && (!searchResults || searchResults.items.length === 0)">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-title">{{ 'vault.noFiles' | translate }}</div>
+            <div class="empty-state-sub" *ngIf="searchResults">{{ 'vault.tryChangingFilters' | translate }}</div>
+          </div>
+
+          <table class="data-table" *ngIf="searchResults && searchResults.items.length > 0">
+            <thead>
+              <tr>
+                <th>{{ 'vault.fileName' | translate }}</th>
+                <th>{{ 'vault.folderName' | translate }}</th>
+                <th>{{ 'vault.fileCategory' | translate }}</th>
+                <th>{{ 'vault.fileSize' | translate }}</th>
+                <th>{{ 'vault.createdAt' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let file of searchResults.items">
+                <td>
+                  <span class="file-icon">{{ getFileIcon(file.category || file.fileCategory) }}</span>
+                  {{ file.originalFileName }}
+                  <span *ngIf="file.isDeleted" class="badge badge-cancelled" style="margin-inline-start:8px">{{ 'vault.deletedBadge' | translate }}</span>
+                </td>
+                <td class="muted">{{ file.folderName || '—' }}</td>
+                <td><span class="badge badge-category">{{ file.fileCategory || file.category || '—' }}</span></td>
+                <td class="num-cell">{{ formatSize(file.fileSizeBytes || file.sizeBytes) }}</td>
+                <td>{{ file.createdAtUtc | date:'mediumDate' }}</td>
+                <td>
+                  <button class="btn-sm btn-outline" (click)="downloadFile(file)" [title]="'vault.download' | translate">
+                    ⬇️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="text-align:center; padding:12px; font-size:0.85rem; color:var(--text-muted);" *ngIf="searchResults && searchResults.items.length > 0">
+            {{ searchResults.totalCount }} {{ 'timeline.events' | translate | slice:0:-2 }}
+          </div>
         </div>
       </div>
 
@@ -723,7 +819,7 @@ export class ProjectDetailsComponent implements OnInit {
   loading = true;
 
   // Vault state
-  vaultTab: 'folders' | 'trash' = 'folders';
+  vaultTab: 'folders' | 'trash' | 'search' = 'folders';
   folders: FolderDto[] = [];
   foldersLoading = false;
   selectedFolder: FolderDto | null = null;
@@ -731,6 +827,16 @@ export class ProjectDetailsComponent implements OnInit {
   filesLoading = false;
   trash: TrashDto | null = null;
   trashLoading = false;
+
+  // File Search state
+  searchQuery = '';
+  searchCategory = '';
+  searchExtension = '';
+  searchSortBy = 'createdAtUtc';
+  searchSortDirection = 'desc';
+  searchIncludeDeleted = false;
+  searchResults: any = null;
+  searchLoading = false;
 
   // Contracts state
   contracts: ContractDto[] = [];
@@ -804,7 +910,36 @@ export class ProjectDetailsComponent implements OnInit {
     return this.trash.deletedFiles.length === 0 && this.trash.deletedFolders.length === 0;
   }
 
-  downloadFile(file: FileDto): void {
+  searchFiles(): void {
+    this.searchLoading = true;
+    const params: any = {
+      sortBy: this.searchSortBy,
+      sortDirection: this.searchSortDirection,
+      page: 1,
+      pageSize: 50
+    };
+    if (this.searchQuery) params.q = this.searchQuery;
+    if (this.searchCategory) params.fileCategory = this.searchCategory;
+    if (this.searchExtension) params.extension = this.searchExtension;
+    if (this.searchIncludeDeleted) params.includeDeleted = true;
+
+    this.vaultService.searchProjectFiles(this.projectId, params).subscribe({
+      next: (res) => { this.searchResults = res; this.searchLoading = false; },
+      error: () => { this.searchLoading = false; }
+    });
+  }
+
+  clearSearchFilters(): void {
+    this.searchQuery = '';
+    this.searchCategory = '';
+    this.searchExtension = '';
+    this.searchSortBy = 'createdAtUtc';
+    this.searchSortDirection = 'desc';
+    this.searchIncludeDeleted = false;
+    this.searchFiles();
+  }
+
+  downloadFile(file: any): void {
     this.vaultService.downloadFile(this.projectId, file.id).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);

@@ -594,6 +594,48 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 7 — File Search API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> searchProjectFiles(String projectId, {
+    String? q,
+    String? folderId,
+    String? fileCategory,
+    String? extension,
+    String? contentType,
+    String? createdFromUtc,
+    String? createdToUtc,
+    bool? includeDeleted,
+    String? sortBy,
+    String? sortDirection,
+    int? page,
+    int? pageSize,
+  }) async {
+    final params = <String, String>{};
+    if (q != null && q.isNotEmpty) params['q'] = q;
+    if (folderId != null && folderId.isNotEmpty) params['folderId'] = folderId;
+    if (fileCategory != null && fileCategory.isNotEmpty) params['fileCategory'] = fileCategory;
+    if (extension != null && extension.isNotEmpty) params['extension'] = extension;
+    if (contentType != null && contentType.isNotEmpty) params['contentType'] = contentType;
+    if (createdFromUtc != null && createdFromUtc.isNotEmpty) params['createdFromUtc'] = createdFromUtc;
+    if (createdToUtc != null && createdToUtc.isNotEmpty) params['createdToUtc'] = createdToUtc;
+    if (includeDeleted == true) params['includeDeleted'] = 'true';
+    if (sortBy != null && sortBy.isNotEmpty) params['sortBy'] = sortBy;
+    if (sortDirection != null && sortDirection.isNotEmpty) params['sortDirection'] = sortDirection;
+    if (page != null) params['page'] = page.toString();
+    if (pageSize != null) params['pageSize'] = pageSize.toString();
+
+    final uri = Uri.parse('$baseUrl/api/projects/$projectId/files/search')
+        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final resp = await http.get(uri, headers: _headers);
+    if (resp.statusCode == 200) {
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {
