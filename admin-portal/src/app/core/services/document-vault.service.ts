@@ -54,6 +54,14 @@ export class DocumentVaultService {
     );
   }
 
+  /** Search project files with filters. */
+  searchProjectFiles(projectId: string, params: any): Observable<any> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/projects/${projectId}/files/search`,
+      { params }
+    );
+  }
+
   /** Download file as Blob — uses Authorization header via interceptor, never JWT in URL. */
   downloadFile(projectId: string, fileId: string): Observable<Blob> {
     return this.http.get(
