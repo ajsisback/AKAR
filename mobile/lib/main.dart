@@ -11,6 +11,7 @@ import 'screens/projects_screen.dart';
 import 'screens/create_project_screen.dart';
 import 'screens/project_details_screen.dart';
 import 'screens/public_follower_upload_screen.dart';
+import 'screens/owner_profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -164,6 +165,14 @@ class _MainNavState extends State<MainNav> {
             icon: const Icon(Icons.language),
             tooltip: l.t('lang_switch'),
             onPressed: () => lp.toggle(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            tooltip: l.t('profile_title'),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const OwnerProfileScreen()),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
