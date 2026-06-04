@@ -41,6 +41,18 @@ public class ChangeOwnerPasswordCommandHandler : IRequestHandler<ChangeOwnerPass
             throw new InvalidOperationException("PASSWORD_CONFIRMATION_MISMATCH");
         }
 
+        // Validate password strength (handler-level guard because ValidationBehavior
+        // only runs for IRequest<TResponse>, not bare IRequest)
+        if (string.IsNullOrEmpty(request.NewPassword)
+            || request.NewPassword.Length < 8
+            || !request.NewPassword.Any(char.IsUpper)
+            || !request.NewPassword.Any(char.IsLower)
+            || !request.NewPassword.Any(char.IsDigit)
+            || request.NewPassword.All(char.IsLetterOrDigit))
+        {
+            throw new InvalidOperationException("PASSWORD_TOO_WEAK");
+        }
+
         var newHash = _passwordHasher.Hash(request.NewPassword);
         owner.ChangePassword(newHash);
 
