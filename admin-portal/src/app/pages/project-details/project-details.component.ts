@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ProjectService, ProjectDto } from '../../core/services/project.service';
+import { ProjectService, ProjectDto, ProjectSettingsDto } from '../../core/services/project.service';
 import {
   DocumentVaultService,
   FolderDto,
@@ -42,26 +42,70 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
           </div>
         </div>
         <div class="detail-item">
-          <label>{{ 'projects.city' | translate }}</label>
-          <div class="value">{{ project.city || '—' }}</div>
-        </div>
-        <div class="detail-item">
-          <label>{{ 'projects.location' | translate }}</label>
-          <div class="value">{{ project.locationText || '—' }}</div>
-        </div>
-        <div class="detail-item" *ngIf="project.mapLink">
-          <label>{{ 'projects.mapLink' | translate }}</label>
-          <div class="value"><a [href]="project.mapLink" target="_blank" class="link">{{ project.mapLink }}</a></div>
-        </div>
-        <div class="detail-item">
           <label>{{ 'projects.createdAt' | translate }}</label>
           <div class="value">{{ project.createdAtUtc | date:'medium' }}</div>
         </div>
-        <div class="detail-item">
-          <label>{{ 'projects.updatedAt' | translate }}</label>
-          <div class="value">{{ project.updatedAtUtc | date:'medium' }}</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PROJECT SETTINGS — Admin Support View (Read-only)
+         ═══════════════════════════════════════════════════════ -->
+    <div class="settings-section" *ngIf="projectSettings">
+      <div class="vault-header">
+        <h2 class="section-title">
+          <span class="section-icon">⚙️</span>
+          {{ 'projectSettings.title' | translate }}
+        </h2>
+        <span class="badge badge-readonly">{{ 'projectSettings.readOnly' | translate }}</span>
+      </div>
+
+      <div class="card">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>{{ 'projectSettings.name' | translate }}</label>
+            <div class="value">{{ projectSettings.projectName }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'projectSettings.type' | translate }}</label>
+            <div class="value">{{ 'projectType.' + projectSettings.projectType | translate }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'projectSettings.currentStage' | translate }}</label>
+            <div class="value">
+              <span class="badge" [ngClass]="getBadgeClass(projectSettings.currentStage)">
+                {{ 'currentStage.' + projectSettings.currentStage | translate }}
+              </span>
+            </div>
+            <div class="value" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              ℹ️ {{ 'projectSettings.stageManagedFromTimeline' | translate }}
+            </div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'projectSettings.city' | translate }}</label>
+            <div class="value">{{ projectSettings.city || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'projectSettings.locationText' | translate }}</label>
+            <div class="value">{{ projectSettings.locationText || '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'projectSettings.mapLink' | translate }}</label>
+            <div class="value" *ngIf="projectSettings.mapLink">
+              <a [href]="projectSettings.mapLink" target="_blank" class="link">{{ projectSettings.mapLink }}</a>
+            </div>
+            <div class="value muted" *ngIf="!projectSettings.mapLink">{{ 'projectSettings.noMapLink' | translate }}</div>
+          </div>
+          <div class="detail-item">
+            <label>{{ 'profile.updatedAt' | translate }}</label>
+            <div class="value">{{ projectSettings.updatedAtUtc | date:'medium' }}</div>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="empty-state card" *ngIf="settingsError" style="margin-top: 32px;">
+      <div class="empty-state-icon">❌</div>
+      <div class="empty-state-title">{{ 'projectSettings.failedToLoad' | translate }}</div>
     </div>
 
     <div class="empty-state card" *ngIf="!project && !loading">
@@ -625,6 +669,9 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
     .link { color: var(--accent); text-decoration: none; word-break: break-all; }
     .link:hover { text-decoration: underline; }
 
+    /* Settings section */
+    .settings-section { margin-top: 32px; }
+
     /* Vault section */
     .vault-section { margin-top: 32px; }
 
@@ -816,6 +863,8 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
 })
 export class ProjectDetailsComponent implements OnInit {
   project: ProjectDto | null = null;
+  projectSettings: ProjectSettingsDto | null = null;
+  settingsError = false;
   loading = true;
 
   // Vault state
@@ -872,6 +921,10 @@ export class ProjectDetailsComponent implements OnInit {
       this.projectService.getById(id).subscribe({
         next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); this.loadTimeline(); },
         error: () => { this.loading = false; }
+      });
+      this.projectService.getSettings(id).subscribe({
+        next: (s) => { this.projectSettings = s; },
+        error: () => { this.settingsError = true; }
       });
     } else {
       this.loading = false;
