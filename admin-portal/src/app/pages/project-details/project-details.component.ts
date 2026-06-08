@@ -23,7 +23,16 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
       <a routerLink="/projects" class="btn btn-outline">{{ 'actions.back' | translate }}</a>
     </div>
 
-    <div class="card" *ngIf="project">
+    <div class="empty-state card" *ngIf="loading">
+      <div class="spinner"></div>
+      <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+    </div>
+    <div class="empty-state card" *ngIf="error">
+      <div class="empty-state-icon">❌</div>
+      <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+      <button class="btn btn-outline" (click)="loadProject()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+    </div>
+    <div class="card" *ngIf="!loading && !error && project">
       <div class="detail-grid">
         <div class="detail-item">
           <label>{{ 'projects.name' | translate }}</label>
@@ -51,7 +60,13 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
     <!-- ═══════════════════════════════════════════════════════
          PROJECT SETTINGS — Admin Support View (Read-only)
          ═══════════════════════════════════════════════════════ -->
-    <div class="settings-section" *ngIf="projectSettings">
+    <div class="settings-section">
+      <div class="empty-state card" *ngIf="settingsError" style="margin-bottom: 24px;">
+        <div class="empty-state-icon">❌</div>
+        <div class="empty-state-title">{{ 'projectSettings.failedToLoad' | translate }}</div>
+        <button class="btn btn-outline" (click)="loadProjectSettings()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+      </div>
+      <div *ngIf="!settingsError && projectSettings">
       <div class="vault-header">
         <h2 class="section-title">
           <span class="section-icon">⚙️</span>
@@ -92,7 +107,7 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
           <div class="detail-item">
             <label>{{ 'projectSettings.mapLink' | translate }}</label>
             <div class="value" *ngIf="projectSettings.mapLink">
-              <a [href]="projectSettings.mapLink" target="_blank" class="link">{{ projectSettings.mapLink }}</a>
+              <a [href]="projectSettings.mapLink" target="_blank" rel="noopener noreferrer" class="link">{{ projectSettings.mapLink }}</a>
             </div>
             <div class="value muted" *ngIf="!projectSettings.mapLink">{{ 'projectSettings.noMapLink' | translate }}</div>
           </div>
@@ -170,7 +185,16 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
       <!-- Timeline Events Table -->
       <div class="card vault-card">
 
-        <div class="empty-state" *ngIf="timelineEvents.length === 0 && !timelineLoading">
+        <div class="empty-state card" *ngIf="timelineLoading">
+        <div class="spinner"></div>
+        <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+      </div>
+      <div class="empty-state card" *ngIf="timelineError">
+        <div class="empty-state-icon">❌</div>
+        <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+        <button class="btn btn-outline" (click)="loadTimeline()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+      </div>
+      <div class="empty-state" *ngIf="!timelineLoading && !timelineError && timelineEvents.length === 0">
           <div class="empty-state-icon">📅</div>
           <div class="empty-state-title">{{ 'timeline.noEvents' | translate }}</div>
           <div class="empty-state-sub">{{ 'timeline.noEventsSub' | translate }}</div>
@@ -252,12 +276,21 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
 
         <!-- Folder List -->
         <div class="card vault-card" *ngIf="!selectedFolder">
-          <div class="empty-state" *ngIf="folders.length === 0 && !foldersLoading">
+          <div class="empty-state card" *ngIf="foldersLoading">
+            <div class="spinner"></div>
+            <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+          </div>
+          <div class="empty-state card" *ngIf="foldersError">
+            <div class="empty-state-icon">❌</div>
+            <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+            <button class="btn btn-outline" (click)="loadFolders()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+          </div>
+          <div class="empty-state" *ngIf="!foldersLoading && !foldersError && folders.length === 0">
             <div class="empty-state-icon">📂</div>
             <div class="empty-state-title">{{ 'vault.noFolders' | translate }}</div>
           </div>
 
-          <table class="data-table" *ngIf="folders.length > 0">
+          <table class="data-table" *ngIf="!foldersLoading && !foldersError && folders.length > 0">
             <thead>
               <tr>
                 <th>{{ 'vault.folderName' | translate }}</th>
@@ -304,12 +337,21 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
             </h3>
           </div>
 
-          <div class="empty-state" *ngIf="folderFiles.length === 0 && !filesLoading">
+          <div class="empty-state card" *ngIf="filesLoading">
+            <div class="spinner"></div>
+            <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+          </div>
+          <div class="empty-state card" *ngIf="filesError">
+            <div class="empty-state-icon">❌</div>
+            <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+            <button class="btn btn-outline" (click)="selectFolder(selectedFolder!)" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+          </div>
+          <div class="empty-state" *ngIf="!filesLoading && !filesError && folderFiles.length === 0">
             <div class="empty-state-icon">📄</div>
             <div class="empty-state-title">{{ 'vault.noFiles' | translate }}</div>
           </div>
 
-          <table class="data-table" *ngIf="folderFiles.length > 0">
+          <table class="data-table" *ngIf="!filesLoading && !filesError && folderFiles.length > 0">
             <thead>
               <tr>
                 <th>{{ 'vault.fileName' | translate }}</th>
@@ -438,7 +480,16 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
       <div class="vault-panel" *ngIf="vaultTab === 'trash'">
         <div class="card vault-card">
 
-          <div class="empty-state" *ngIf="trashEmpty && !trashLoading">
+          <div class="empty-state card" *ngIf="trashLoading">
+            <div class="spinner"></div>
+            <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+          </div>
+          <div class="empty-state card" *ngIf="trashError">
+            <div class="empty-state-icon">❌</div>
+            <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+            <button class="btn btn-outline" (click)="loadTrash()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+          </div>
+          <div class="empty-state" *ngIf="!trashLoading && !trashError && trashEmpty">
             <div class="empty-state-icon">🗑️</div>
             <div class="empty-state-title">{{ 'vault.noDeletedItems' | translate }}</div>
           </div>
@@ -518,12 +569,21 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
       <!-- Contract List -->
       <div class="card vault-card" *ngIf="!selectedContract">
 
-        <div class="empty-state" *ngIf="contracts.length === 0 && !contractsLoading">
+        <div class="empty-state card" *ngIf="contractsLoading">
+          <div class="spinner"></div>
+          <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+        </div>
+        <div class="empty-state card" *ngIf="contractsError">
+          <div class="empty-state-icon">❌</div>
+          <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+          <button class="btn btn-outline" (click)="loadContracts()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+        </div>
+        <div class="empty-state" *ngIf="!contractsLoading && !contractsError && contracts.length === 0">
           <div class="empty-state-icon">📑</div>
           <div class="empty-state-title">{{ 'contracts.noContracts' | translate }}</div>
         </div>
 
-        <table class="data-table" *ngIf="contracts.length > 0">
+        <table class="data-table" *ngIf="!contractsLoading && !contractsError && contracts.length > 0">
           <thead>
             <tr>
               <th>{{ 'contracts.contractTitle' | translate }}</th>
@@ -863,19 +923,24 @@ import { TimelineService, TimelineEventDto } from '../../core/services/timeline.
 })
 export class ProjectDetailsComponent implements OnInit {
   project: ProjectDto | null = null;
+  loading = true;
+  error = false;
+
   projectSettings: ProjectSettingsDto | null = null;
   settingsError = false;
-  loading = true;
 
   // Vault state
   vaultTab: 'folders' | 'trash' | 'search' = 'folders';
   folders: FolderDto[] = [];
   foldersLoading = false;
+  foldersError = false;
   selectedFolder: FolderDto | null = null;
   folderFiles: FileDto[] = [];
   filesLoading = false;
+  filesError = false;
   trash: TrashDto | null = null;
   trashLoading = false;
+  trashError = false;
 
   // File Search state
   searchQuery = '';
@@ -886,16 +951,19 @@ export class ProjectDetailsComponent implements OnInit {
   searchIncludeDeleted = false;
   searchResults: any = null;
   searchLoading = false;
+  searchError = false;
 
   // Contracts state
   contracts: ContractDto[] = [];
   contractsLoading = false;
+  contractsError = false;
   selectedContract: ContractDto | null = null;
   contractData: any = null;
 
   // Timeline state
   timelineEvents: TimelineEventDto[] = [];
   timelineLoading = false;
+  timelineError = false;
   timelineFilterStage = '';
   timelineFilterType = '';
   stages = ['NotStarted', 'Structural', 'Finishing', 'Completed'];
@@ -918,43 +986,57 @@ export class ProjectDetailsComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.projectId = id;
-      this.projectService.getById(id).subscribe({
-        next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); this.loadTimeline(); },
-        error: () => { this.loading = false; }
-      });
-      this.projectService.getSettings(id).subscribe({
-        next: (s) => { this.projectSettings = s; },
-        error: () => { this.settingsError = true; }
-      });
+      this.loadProject();
+      this.loadProjectSettings();
     } else {
       this.loading = false;
     }
+  }
+
+  loadProject(): void {
+    this.loading = true;
+    this.error = false;
+    this.projectService.getById(this.projectId).subscribe({
+      next: (p) => { this.project = p; this.loading = false; this.loadFolders(); this.loadContracts(); this.loadTimeline(); },
+      error: () => { this.loading = false; this.error = true; }
+    });
+  }
+
+  loadProjectSettings(): void {
+    this.settingsError = false;
+    this.projectService.getSettings(this.projectId).subscribe({
+      next: (s) => { this.projectSettings = s; },
+      error: () => { this.settingsError = true; }
+    });
   }
 
   // ── Vault logic ─────────────────────────────────
 
   loadFolders(): void {
     this.foldersLoading = true;
+    this.foldersError = false;
     this.vaultService.getProjectFolders(this.projectId).subscribe({
       next: (f) => { this.folders = f; this.foldersLoading = false; },
-      error: () => { this.foldersLoading = false; }
+      error: () => { this.foldersLoading = false; this.foldersError = true; }
     });
   }
 
   selectFolder(folder: FolderDto): void {
     this.selectedFolder = folder;
     this.filesLoading = true;
+    this.filesError = false;
     this.vaultService.getFolderFiles(this.projectId, folder.id).subscribe({
       next: (files) => { this.folderFiles = files; this.filesLoading = false; },
-      error: () => { this.filesLoading = false; }
+      error: () => { this.filesLoading = false; this.filesError = true; }
     });
   }
 
   loadTrash(): void {
     this.trashLoading = true;
+    this.trashError = false;
     this.vaultService.getProjectTrash(this.projectId).subscribe({
       next: (t) => { this.trash = t; this.trashLoading = false; },
-      error: () => { this.trashLoading = false; }
+      error: () => { this.trashLoading = false; this.trashError = true; }
     });
   }
 
@@ -965,6 +1047,7 @@ export class ProjectDetailsComponent implements OnInit {
 
   searchFiles(): void {
     this.searchLoading = true;
+    this.searchError = false;
     const params: any = {
       sortBy: this.searchSortBy,
       sortDirection: this.searchSortDirection,
@@ -978,7 +1061,7 @@ export class ProjectDetailsComponent implements OnInit {
 
     this.vaultService.searchProjectFiles(this.projectId, params).subscribe({
       next: (res) => { this.searchResults = res; this.searchLoading = false; },
-      error: () => { this.searchLoading = false; }
+      error: () => { this.searchLoading = false; this.searchError = true; }
     });
   }
 
@@ -1012,9 +1095,10 @@ export class ProjectDetailsComponent implements OnInit {
 
   loadContracts(): void {
     this.contractsLoading = true;
+    this.contractsError = false;
     this.contractsService.getProjectContracts(this.projectId).subscribe({
       next: (c) => { this.contracts = c; this.contractsLoading = false; },
-      error: () => { this.contractsLoading = false; }
+      error: () => { this.contractsLoading = false; this.contractsError = true; }
     });
   }
 
@@ -1086,12 +1170,13 @@ export class ProjectDetailsComponent implements OnInit {
 
   loadTimeline(): void {
     this.timelineLoading = true;
+    this.timelineError = false;
     const filters: { stage?: string; eventType?: string } = {};
     if (this.timelineFilterStage) filters.stage = this.timelineFilterStage;
     if (this.timelineFilterType) filters.eventType = this.timelineFilterType;
     this.timelineService.getProjectTimeline(this.projectId, filters).subscribe({
       next: (events) => { this.timelineEvents = events; this.timelineLoading = false; },
-      error: () => { this.timelineLoading = false; }
+      error: () => { this.timelineLoading = false; this.timelineError = true; }
     });
   }
 

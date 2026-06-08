@@ -17,7 +17,18 @@ import { OwnerProfileService, OwnerProfileDto } from '../../core/services/owner-
 
     <p class="welcome-text" *ngIf="ownerName">{{ 'dashboard.welcome' | translate }}, {{ ownerName }} 👋</p>
 
-    <div class="stat-grid" *ngIf="dashboard">
+    <div class="empty-state card" *ngIf="loadingDash">
+      <div class="spinner"></div>
+      <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+    </div>
+
+    <div class="empty-state card" *ngIf="errorDash">
+      <div class="empty-state-icon">❌</div>
+      <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+      <button class="btn btn-outline" (click)="loadDash()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+    </div>
+
+    <div class="stat-grid" *ngIf="!loadingDash && !errorDash && dashboard && dashboard.totalProjects > 0">
       <div class="stat-card">
         <div class="stat-value">{{ dashboard.totalProjects }}</div>
         <div class="stat-label">{{ 'dashboard.totalProjects' | translate }}</div>
@@ -40,7 +51,7 @@ import { OwnerProfileService, OwnerProfileDto } from '../../core/services/owner-
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="dashboard && dashboard.totalProjects === 0">
+    <div class="empty-state" *ngIf="!loadingDash && !errorDash && dashboard && dashboard.totalProjects === 0">
       <div class="empty-state-icon">🏗️</div>
       <div class="empty-state-title">{{ 'dashboard.noProjects' | translate }}</div>
       <div class="empty-state-text">{{ 'dashboard.createFirst' | translate }}</div>
@@ -48,7 +59,12 @@ import { OwnerProfileService, OwnerProfileDto } from '../../core/services/owner-
     </div>
 
     <!-- Owner Profile Support View -->
-    <div class="card" style="margin-top: 32px;" *ngIf="profile">
+    <div class="empty-state card" *ngIf="loadingProfile" style="margin-top: 32px;">
+      <div class="spinner"></div>
+      <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+    </div>
+
+    <div class="card" style="margin-top: 32px;" *ngIf="!loadingProfile && !errorProfile && profile">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 class="section-title" style="font-size: 1.25rem; margin: 0;">
           👤 {{ 'profile.title' | translate }}
@@ -81,9 +97,10 @@ import { OwnerProfileService, OwnerProfileDto } from '../../core/services/owner-
         </div>
       </div>
     </div>
-    <div class="empty-state card" *ngIf="profileError" style="margin-top: 32px;">
+    <div class="empty-state card" *ngIf="errorProfile" style="margin-top: 32px;">
       <div class="empty-state-icon">❌</div>
       <div class="empty-state-title">{{ 'profile.failedToLoad' | translate }}</div>
+      <button class="btn btn-outline" (click)="loadProfile()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
     </div>
   `,
   styles: [`
@@ -98,7 +115,10 @@ export class DashboardComponent implements OnInit {
   dashboard: DashboardDto | null = null;
   ownerName = '';
   profile: OwnerProfileDto | null = null;
-  profileError = false;
+  loadingDash = true;
+  errorDash = false;
+  loadingProfile = true;
+  errorProfile = false;
 
   constructor(
     private projectService: ProjectService,
@@ -108,14 +128,25 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.ownerName = this.authService.getOwner()?.fullName || '';
-    this.projectService.getDashboard().subscribe({
-      next: (d) => this.dashboard = d,
-      error: () => {}
-    });
+    this.loadDash();
+    this.loadProfile();
+  }
 
+  loadDash(): void {
+    this.loadingDash = true;
+    this.errorDash = false;
+    this.projectService.getDashboard().subscribe({
+      next: (d) => { this.dashboard = d; this.loadingDash = false; },
+      error: () => { this.loadingDash = false; this.errorDash = true; }
+    });
+  }
+
+  loadProfile(): void {
+    this.loadingProfile = true;
+    this.errorProfile = false;
     this.ownerProfileService.getProfile().subscribe({
-      next: (p) => this.profile = p,
-      error: () => this.profileError = true
+      next: (p) => { this.profile = p; this.loadingProfile = false; },
+      error: () => { this.loadingProfile = false; this.errorProfile = true; }
     });
   }
 }

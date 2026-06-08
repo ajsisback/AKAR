@@ -242,5 +242,14 @@
       "FollowerAdded": "Follower Added",
       "FollowerFileUploaded": "Follower File Uploaded"
     }
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "noData": "No data available",
+    "unableToLoad": "Unable to load data",
+    "operationFailed": "Operation failed",
+    "readOnly": "Support View — Read Only",
+    "externalLink": "External Link"
   }
 }

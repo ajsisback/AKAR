@@ -242,5 +242,14 @@
       "FollowerAdded": "إضافة تابع",
       "FollowerFileUploaded": "رفع ملف تابع"
     }
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "retry": "إعادة المحاولة",
+    "noData": "لا توجد بيانات",
+    "unableToLoad": "تعذر تحميل البيانات",
+    "operationFailed": "فشلت العملية",
+    "readOnly": "عرض الدعم — للقراءة فقط",
+    "externalLink": "رابط خارجي"
   }
 }
