@@ -12,6 +12,29 @@
     "logout": "تسجيل الخروج",
     "settings": "الإعدادات"
   },
+  "profile": {
+    "title": "الملف الشخصي للمالك",
+    "readOnly": "عرض الدعم — للقراءة فقط",
+    "fullName": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "آخر تحديث",
+    "failedToLoad": "فشل تحميل الملف الشخصي"
+  },
+  "projectSettings": {
+    "title": "إعدادات المشروع",
+    "readOnly": "عرض الدعم — للقراءة فقط",
+    "name": "اسم المشروع",
+    "type": "نوع المشروع",
+    "currentStage": "المرحلة الحالية",
+    "city": "المدينة",
+    "locationText": "الموقع",
+    "mapLink": "رابط الخريطة",
+    "noMapLink": "لا يوجد رابط خريطة",
+    "stageManagedFromTimeline": "تتم إدارة المرحلة من الجدول الزمني",
+    "failedToLoad": "فشل تحميل إعدادات المشروع"
+  },
   "auth": {
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",

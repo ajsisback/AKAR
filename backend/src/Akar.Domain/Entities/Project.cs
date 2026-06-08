@@ -54,4 +54,14 @@ public class Project : AggregateRoot<Guid>
         CurrentStage = newStage;
         SetUpdatedAt();
     }
+
+    public void UpdateSettings(string projectName, ProjectType projectType, string? city, string? locationText, string? mapLink)
+    {
+        ProjectName = projectName;
+        ProjectType = projectType;
+        City = city;
+        LocationText = locationText;
+        MapLink = mapLink;
+        SetUpdatedAt();
+    }
 }

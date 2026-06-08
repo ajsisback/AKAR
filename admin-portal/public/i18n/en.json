@@ -12,6 +12,29 @@
     "logout": "Logout",
     "settings": "Settings"
   },
+  "profile": {
+    "title": "Owner Profile",
+    "readOnly": "Support View — Read Only",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "failedToLoad": "Failed To Load Profile"
+  },
+  "projectSettings": {
+    "title": "Project Settings",
+    "readOnly": "Support View — Read Only",
+    "name": "Project Name",
+    "type": "Project Type",
+    "currentStage": "Current Stage",
+    "city": "City",
+    "locationText": "Location Text",
+    "mapLink": "Map Link",
+    "noMapLink": "No Map Link",
+    "stageManagedFromTimeline": "Stage Managed From Timeline",
+    "failedToLoad": "Failed To Load Project Settings"
+  },
   "auth": {
     "login": "Login",
     "register": "Register",

@@ -636,6 +636,75 @@ class ApiService {
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // Sprint 8 — Owner Profile & Project Settings API
+  // ═══════════════════════════════════════════════════════════════
+
+  Future<Map<String, dynamic>> getOwnerProfile() async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/owner/profile'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> updateOwnerProfile({
+    required String fullName,
+    required String phone,
+  }) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/owner/profile'),
+      headers: _headers,
+      body: json.encode({'fullName': fullName, 'phone': phone}),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<void> changeOwnerPassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmNewPassword,
+  }) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/owner/change-password'),
+      headers: _headers,
+      body: json.encode({
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+        'confirmNewPassword': confirmNewPassword,
+      }),
+    );
+    if (resp.statusCode == 204 || resp.statusCode == 200) return;
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> getProjectSettings(String projectId) async {
+    final resp = await http.get(
+      Uri.parse('$baseUrl/api/projects/$projectId/settings'),
+      headers: _headers,
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  Future<Map<String, dynamic>> updateProjectSettings(
+      String projectId, Map<String, dynamic> payload) async {
+    final resp = await http.put(
+      Uri.parse('$baseUrl/api/projects/$projectId/settings'),
+      headers: _headers,
+      body: json.encode(payload),
+    );
+    if (resp.statusCode == 200) return json.decode(resp.body);
+    if (resp.statusCode == 401) throw ApiException('UNAUTHORIZED');
+    throw ApiException(_parseError(resp));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
 
   String _parseError(http.Response resp) {
     try {

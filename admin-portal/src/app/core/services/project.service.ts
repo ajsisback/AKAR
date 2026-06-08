@@ -9,6 +9,17 @@ export interface ProjectDto {
   optionalImageUrl?: string; createdAtUtc: string; updatedAtUtc: string;
 }
 
+export interface ProjectSettingsDto {
+  projectId: string;
+  projectName: string;
+  projectType: string;
+  currentStage: string;
+  city?: string;
+  locationText?: string;
+  mapLink?: string;
+  updatedAtUtc: string;
+}
+
 export interface CreateProjectRequest {
   projectName: string; projectType: string; city?: string;
   locationText?: string; mapLink?: string; currentStage?: string; optionalImageUrl?: string;
@@ -37,5 +48,9 @@ export class ProjectService {
 
   create(request: CreateProjectRequest): Observable<ProjectDto> {
     return this.http.post<ProjectDto>(`${environment.apiUrl}/projects`, request);
+  }
+
+  getSettings(id: string): Observable<ProjectSettingsDto> {
+    return this.http.get<ProjectSettingsDto>(`${environment.apiUrl}/projects/${id}/settings`);
   }
 }

@@ -1,4 +1,6 @@
 using Akar.Application.Features.Projects;
+using Akar.Application.Features.ProjectSettings;
+using Akar.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -84,6 +86,44 @@ public class ProjectsController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpGet("{id:guid}/settings")]
+    public async Task<ActionResult<ProjectSettingsDto>> GetSettings(Guid id, CancellationToken cancellationToken)
+    {
+        var ownerId = GetOwnerId();
+        if (ownerId is null) return Unauthorized();
+
+        try
+        {
+            var result = await _mediator.Send(new GetProjectSettingsQuery(id, ownerId.Value), cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "PROJECT_NOT_FOUND")
+        {
+            return NotFound(new ProblemDetails { Status = 404, Title = ex.Message });
+        }
+    }
+
+    [HttpPut("{id:guid}/settings")]
+    public async Task<ActionResult<ProjectSettingsDto>> UpdateSettings(Guid id, [FromBody] UpdateProjectSettingsRequest request, CancellationToken cancellationToken)
+    {
+        var ownerId = GetOwnerId();
+        if (ownerId is null) return Unauthorized();
+
+        try
+        {
+            var result = await _mediator.Send(new UpdateProjectSettingsCommand(id, ownerId.Value, request), cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "PROJECT_NOT_FOUND")
+        {
+            return NotFound(new ProblemDetails { Status = 404, Title = ex.Message });
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "PROJECT_INVALID_TYPE")
+        {
+            return BadRequest(new ProblemDetails { Status = 400, Title = ex.Message });
+        }
     }
 
     private Guid? GetOwnerId()

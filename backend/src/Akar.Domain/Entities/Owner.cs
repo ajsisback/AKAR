@@ -49,4 +49,17 @@ public class Owner : AggregateRoot<Guid>
         IsActive = true;
         SetUpdatedAt();
     }
+
+    public void UpdateProfile(string fullName, string? phone)
+    {
+        FullName = fullName;
+        Phone = phone ?? string.Empty;
+        SetUpdatedAt();
+    }
+
+    public void ChangePassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
+        SetUpdatedAt();
+    }
 }
