@@ -401,5 +401,16 @@
   "err_owner_not_found": "لم يتم العثور على الحساب",
   "err_project_name_required": "اسم المشروع مطلوب",
   "err_invalid_project_type": "نوع المشروع غير صحيح",
-  "err_invalid_map_url": "رابط الخريطة غير صحيح"
+  "err_invalid_map_url": "رابط الخريطة غير صحيح",
+
+  "btn_retry": "إعادة المحاولة",
+  "saving": "جاري الحفظ...",
+  "err_session_expired": "انتهت الجلسة، يرجى تسجيل الدخول مجدداً",
+  "err_validation": "يرجى التحقق من المدخلات",
+  "err_unable_to_load": "تعذر تحميل البيانات",
+  "err_unable_to_save": "تعذر حفظ البيانات",
+  "saved_successfully": "تم الحفظ بنجاح",
+  "err_unexpected": "حدث خطأ غير متوقع",
+  "no_data": "لا توجد بيانات",
+  "try_again": "حاول مرة أخرى"
 }

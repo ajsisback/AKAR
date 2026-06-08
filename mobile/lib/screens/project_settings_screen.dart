@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/widgets.dart';
 
 class ProjectSettingsScreen extends StatefulWidget {
   final String projectId;
@@ -15,6 +16,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic>? _settings;
   bool _loading = true;
+  String? _loadError;
   bool _saving = false;
 
   final _nameCtrl = TextEditingController();
@@ -41,6 +43,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
   }
 
   Future<void> _load() async {
+    setState(() { _loading = true; _loadError = null; });
     await _api.init();
     try {
       final s = await _api.getProjectSettings(widget.projectId);
@@ -56,36 +59,15 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
         });
       }
     } on ApiException catch (e) {
-      if (mounted) {
-        setState(() => _loading = false);
-        _showError(e.code);
-      }
+      if (mounted) setState(() { _loadError = e.code; _loading = false; });
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  String _mapError(String code, AppLocalizations l) {
-    switch (code) {
-      case 'PROJECT_NOT_FOUND':
-        return l.t('err_project_not_found');
-      case 'PROJECT_NAME_REQUIRED':
-        return l.t('err_project_name_required');
-      case 'INVALID_PROJECT_TYPE':
-        return l.t('err_invalid_project_type');
-      case 'INVALID_MAP_URL':
-        return l.t('err_invalid_map_url');
-      case 'UNAUTHORIZED':
-        return l.t('err_invalid_credentials');
-      default:
-        return l.t('err_generic');
+      if (mounted) setState(() { _loadError = 'err_generic'; _loading = false; });
     }
   }
 
   void _showError(String code) {
-    final l = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_mapError(code, l)), backgroundColor: AkarTheme.danger),
+      SnackBar(content: Text(localizeError(context, code)), backgroundColor: AkarTheme.danger),
     );
   }
 
@@ -169,10 +151,15 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l.t('project_settings_title'))),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _settings == null
-              ? Center(child: Text(l.t('err_generic')))
-              : _buildForm(l),
+          ? const AkarLoadingState()
+          : _loadError != null
+              ? AkarErrorState(
+                  message: localizeError(context, _loadError!),
+                  onRetry: _load,
+                )
+              : _settings == null
+                  ? AkarErrorState(message: l.t('err_generic'), onRetry: _load)
+                  : _buildForm(l),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -85,10 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       validator: (v) => v == null || v.isEmpty ? l.t('val_required') : null,
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _loading ? null : _submit,
-                      child: _loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(l.t('login_button')),
-                    ),
+                    AkarPrimaryButton(label: l.t('login_button'), loading: _loading, onPressed: _submit),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

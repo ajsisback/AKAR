@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/widgets.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onRegisterSuccess;
@@ -39,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
       final l = AppLocalizations.of(context);
       setState(() => _error = e.code == 'AUTH_EMAIL_EXISTS'
-          ? l.t('err_email_exists') : l.t('err_generic'));
+          ? l.t('err_email_exists') : localizeError(context, e.code));
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = AppLocalizations.of(context).t('err_network'));
@@ -110,10 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(labelText: l.t('register_company'), prefixIcon: const Icon(Icons.business_outlined)),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _loading ? null : _submit,
-                      child: _loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(l.t('register_button')),
-                    ),
+                    AkarPrimaryButton(label: l.t('register_button'), loading: _loading, onPressed: _submit),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

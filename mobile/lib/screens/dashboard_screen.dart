@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/widgets.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -13,6 +14,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _data;
   String? _ownerName;
   bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -21,24 +23,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
     final api = ApiService();
     await api.init();
     _ownerName = api.owner?['fullName'] ?? '';
     try {
       final dash = await api.getDashboard();
       if (mounted) setState(() { _data = dash; _loading = false; });
+    } on ApiException catch (e) {
+      if (mounted) setState(() { _error = e.code; _loading = false; });
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() { _error = 'err_generic'; _loading = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+
+    if (_loading) return const AkarLoadingState();
+
+    if (_error != null) {
+      return AkarErrorState(
+        message: localizeError(context, _error!),
+        onRetry: _load,
+      );
+    }
 
     return RefreshIndicator(
-      onRefresh: () async { setState(() => _loading = true); await _load(); },
+      onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -62,13 +75,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
           if (_data != null && (_data!['totalProjects'] ?? 0) == 0) ...[
             const SizedBox(height: 40),
-            Center(child: Column(children: [
-              const Icon(Icons.construction, size: 64, color: Color(0xFF5A6577)),
-              const SizedBox(height: 12),
-              Text(l.t('dashboard_no_projects'), style: const TextStyle(fontSize: 16, color: Color(0xFF8B95A5))),
-              const SizedBox(height: 4),
-              Text(l.t('dashboard_create_first'), style: const TextStyle(color: Color(0xFF5A6577), fontSize: 13)),
-            ])),
+            AkarEmptyState(
+              icon: Icons.construction,
+              message: l.t('dashboard_no_projects'),
+              subtitle: l.t('dashboard_create_first'),
+            ),
           ],
         ],
       ),
@@ -98,3 +109,4 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+

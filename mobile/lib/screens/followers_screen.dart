@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/widgets.dart';
 import 'follower_details_screen.dart';
 import 'add_edit_follower_screen.dart';
 
@@ -73,19 +74,17 @@ class _FollowersScreenState extends State<FollowersScreen> {
         child: const Icon(Icons.person_add, color: AkarTheme.textPrimary),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AkarLoadingState()
           : _error != null
-              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(l.t(_error!), style: const TextStyle(color: AkarTheme.danger)),
-                  const SizedBox(height: 12),
-                  TextButton(onPressed: () { setState(() => _loading = true); _load(); }, child: Text(l.t('btn_back'))),
-                ]))
+              ? AkarErrorState(
+                  message: localizeError(context, _error!),
+                  onRetry: () { setState(() => _loading = true); _load(); },
+                )
               : _followers.isEmpty
-                  ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.people_outline, size: 64, color: AkarTheme.textMuted),
-                      const SizedBox(height: 12),
-                      Text(l.t('followers_empty'), style: const TextStyle(color: AkarTheme.textMuted, fontSize: 16)),
-                    ]))
+                  ? AkarEmptyState(
+                      icon: Icons.people_outline,
+                      message: l.t('followers_empty'),
+                    )
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: ListView.builder(
