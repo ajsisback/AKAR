@@ -1,11 +1,12 @@
 using Akar.Application.Interfaces;
+using Akar.Shared;
 using MediatR;
 
 namespace Akar.Application.Features.OwnerProfile;
 
-public record ChangeOwnerPasswordCommand(Guid OwnerId, string CurrentPassword, string NewPassword, string ConfirmNewPassword) : IRequest;
+public record ChangeOwnerPasswordCommand(Guid OwnerId, string CurrentPassword, string NewPassword, string ConfirmNewPassword) : IRequest<Result>;
 
-public class ChangeOwnerPasswordCommandHandler : IRequestHandler<ChangeOwnerPasswordCommand>
+public class ChangeOwnerPasswordCommandHandler : IRequestHandler<ChangeOwnerPasswordCommand, Result>
 {
     private readonly IOwnerRepository _ownerRepository;
     private readonly IPasswordHasher _passwordHasher;
@@ -18,31 +19,32 @@ public class ChangeOwnerPasswordCommandHandler : IRequestHandler<ChangeOwnerPass
         _passwordHasher = passwordHasher;
     }
 
-    public async Task Handle(ChangeOwnerPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ChangeOwnerPasswordCommand request, CancellationToken cancellationToken)
     {
         var owner = await _ownerRepository.GetByIdAsync(request.OwnerId, cancellationToken);
         if (owner == null)
         {
-            throw new InvalidOperationException("OWNER_NOT_FOUND");
+            return Result.Failure("OWNER_NOT_FOUND", "Owner not found");
         }
 
         if (!_passwordHasher.Verify(request.CurrentPassword, owner.PasswordHash))
         {
-            throw new InvalidOperationException("CURRENT_PASSWORD_INVALID");
+            return Result.Failure("CURRENT_PASSWORD_INVALID", "Current password is incorrect");
         }
 
         if (request.NewPassword == request.CurrentPassword)
         {
-            throw new InvalidOperationException("PASSWORD_SAME_AS_CURRENT");
+            return Result.Failure("PASSWORD_SAME_AS_CURRENT", "New password cannot be the same as current password");
         }
 
         if (request.NewPassword != request.ConfirmNewPassword)
         {
-            throw new InvalidOperationException("PASSWORD_CONFIRMATION_MISMATCH");
+            return Result.Failure("PASSWORD_CONFIRMATION_MISMATCH", "Password confirmation does not match");
         }
 
-        // Validate password strength (handler-level guard because ValidationBehavior
-        // only runs for IRequest<TResponse>, not bare IRequest)
+        // Defense-in-depth: handler-level password strength guard.
+        // FluentValidation now runs via the pipeline (ChangeOwnerPasswordCommandValidator),
+        // but this remains as a safety net.
         if (string.IsNullOrEmpty(request.NewPassword)
             || request.NewPassword.Length < 8
             || !request.NewPassword.Any(char.IsUpper)
@@ -50,12 +52,13 @@ public class ChangeOwnerPasswordCommandHandler : IRequestHandler<ChangeOwnerPass
             || !request.NewPassword.Any(char.IsDigit)
             || request.NewPassword.All(char.IsLetterOrDigit))
         {
-            throw new InvalidOperationException("PASSWORD_TOO_WEAK");
+            return Result.Failure("PASSWORD_TOO_WEAK", "Password does not meet strength requirements");
         }
 
         var newHash = _passwordHasher.Hash(request.NewPassword);
         owner.ChangePassword(newHash);
 
         await _ownerRepository.SaveChangesAsync(cancellationToken);
+        return Result.Success();
     }
 }

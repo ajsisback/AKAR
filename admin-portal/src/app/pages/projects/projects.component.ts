@@ -14,7 +14,18 @@ import { ProjectService, ProjectDto } from '../../core/services/project.service'
       <a routerLink="/projects/new" class="btn btn-accent">{{ 'projects.createNew' | translate }}</a>
     </div>
 
-    <div class="card" *ngIf="projects.length > 0">
+    <div class="empty-state card" *ngIf="loading">
+      <div class="spinner"></div>
+      <div class="empty-state-title" style="margin-top: 16px;">{{ 'common.loading' | translate }}</div>
+    </div>
+
+    <div class="empty-state card" *ngIf="error">
+      <div class="empty-state-icon">❌</div>
+      <div class="empty-state-title">{{ 'common.unableToLoad' | translate }}</div>
+      <button class="btn btn-outline" (click)="load()" style="margin-top: 16px;">{{ 'common.retry' | translate }}</button>
+    </div>
+
+    <div class="card" *ngIf="!loading && !error && projects.length > 0">
       <table class="data-table">
         <thead>
           <tr>
@@ -47,7 +58,7 @@ import { ProjectService, ProjectDto } from '../../core/services/project.service'
       </table>
     </div>
 
-    <div class="empty-state card" *ngIf="projects.length === 0 && !loading">
+    <div class="empty-state card" *ngIf="!loading && !error && projects.length === 0">
       <div class="empty-state-icon">📂</div>
       <div class="empty-state-title">{{ 'projects.noProjects' | translate }}</div>
       <div class="empty-state-text">{{ 'projects.createFirst' | translate }}</div>
@@ -61,13 +72,20 @@ import { ProjectService, ProjectDto } from '../../core/services/project.service'
 export class ProjectsComponent implements OnInit {
   projects: ProjectDto[] = [];
   loading = true;
+  error = false;
 
   constructor(private projectService: ProjectService) {}
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading = true;
+    this.error = false;
     this.projectService.list().subscribe({
       next: (p) => { this.projects = p; this.loading = false; },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.error = true; }
     });
   }
 

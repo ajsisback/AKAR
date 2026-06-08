@@ -33,13 +33,20 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             var errorCodes = string.Join(", ", failures.Select(f => f.ErrorMessage));
             _logger.LogWarning("Validation failed for {RequestType}: {ErrorCodes}", typeof(TRequest).Name, errorCodes);
 
-            // Try to return a Result<T>.Failure if TResponse is a Result type
+            // Try to return a Result<T>.Failure if TResponse is a generic Result type
             if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
             {
                 var resultType = typeof(TResponse);
                 var failureMethod = resultType.GetMethod("Failure")!;
                 var firstError = failures.First().ErrorMessage;
                 return (TResponse)failureMethod.Invoke(null, [firstError, string.Join("; ", failures.Select(f => f.ErrorMessage))])!;
+            }
+
+            // Try to return a non-generic Result.Failure if TResponse is Result
+            if (typeof(TResponse) == typeof(Result))
+            {
+                var firstError = failures.First().ErrorMessage;
+                return (TResponse)(object)Result.Failure(firstError, string.Join("; ", failures.Select(f => f.ErrorMessage)));
             }
 
             throw new ValidationException(failures);

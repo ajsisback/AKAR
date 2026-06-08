@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/widgets.dart';
 
 class CreateProjectScreen extends StatefulWidget {
   final VoidCallback onCreated;
@@ -35,6 +36,8 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
         'currentStage': _stage,
       });
       if (mounted) widget.onCreated();
+    } on ApiException catch (e) {
+      setState(() => _error = localizeError(context, e.code));
     } catch (_) {
       setState(() => _error = AppLocalizations.of(context).t('err_generic'));
     } finally {
@@ -82,8 +85,7 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                 DropdownMenuItem(value: 'Completed', child: Text(l.t('stage_completed'))),
               ], onChanged: (v) => setState(() => _stage = v ?? 'NotStarted')),
             const SizedBox(height: 28),
-            ElevatedButton(onPressed: _loading ? null : _submit,
-              child: _loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(l.t('btn_create'))),
+            AkarPrimaryButton(label: l.t('btn_create'), loading: _loading, onPressed: _submit),
           ]),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/widgets.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -35,22 +36,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  String _mapError(String code, AppLocalizations l) {
-    switch (code) {
-      case 'CURRENT_PASSWORD_INVALID':
-        return l.t('err_current_password_invalid');
-      case 'PASSWORD_TOO_WEAK':
-        return l.t('err_password_too_weak');
-      case 'PASSWORD_CONFIRMATION_MISMATCH':
-        return l.t('err_password_confirmation_mismatch');
-      case 'PASSWORD_SAME_AS_CURRENT':
-        return l.t('err_password_same_as_current');
-      case 'OWNER_NOT_FOUND':
-        return l.t('err_owner_not_found');
-      default:
-        return l.t('err_generic');
-    }
-  }
+
 
   String? _validateNewPassword(String? v, AppLocalizations l) {
     if (v == null || v.isEmpty) return l.t('val_required');
@@ -88,7 +74,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_mapError(e.code, l)), backgroundColor: AkarTheme.danger),
+          SnackBar(content: Text(localizeError(context, e.code)), backgroundColor: AkarTheme.danger),
         );
       }
     } catch (_) {

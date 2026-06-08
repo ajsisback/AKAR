@@ -401,5 +401,16 @@
   "err_owner_not_found": "Account not found",
   "err_project_name_required": "Project name is required",
   "err_invalid_project_type": "Invalid project type",
-  "err_invalid_map_url": "Invalid map link"
+  "err_invalid_map_url": "Invalid map link",
+
+  "btn_retry": "Retry",
+  "saving": "Saving...",
+  "err_session_expired": "Session expired, please log in again",
+  "err_validation": "Please check your input",
+  "err_unable_to_load": "Unable to load data",
+  "err_unable_to_save": "Unable to save data",
+  "saved_successfully": "Saved successfully",
+  "err_unexpected": "An unexpected error occurred",
+  "no_data": "No data available",
+  "try_again": "Try again"
 }

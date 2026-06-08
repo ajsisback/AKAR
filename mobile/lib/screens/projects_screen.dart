@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
+import '../core/widgets.dart';
 
 class ProjectsScreen extends StatefulWidget {
   final void Function(String id) onViewProject;
@@ -13,6 +14,7 @@ class ProjectsScreen extends StatefulWidget {
 class _ProjectsScreenState extends State<ProjectsScreen> {
   List<Map<String, dynamic>> _projects = [];
   bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -21,13 +23,16 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   }
 
   Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
     final api = ApiService();
     await api.init();
     try {
       final list = await api.getProjects();
       if (mounted) setState(() { _projects = list; _loading = false; });
+    } on ApiException catch (e) {
+      if (mounted) setState(() { _error = e.code; _loading = false; });
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() { _error = 'err_generic'; _loading = false; });
     }
   }
 
@@ -63,25 +68,26 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+
+    if (_loading) return const AkarLoadingState();
+
+    if (_error != null) {
+      return AkarErrorState(
+        message: localizeError(context, _error!),
+        onRetry: _load,
+      );
+    }
 
     if (_projects.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.folder_open, size: 64, color: Color(0xFF5A6577)),
-            const SizedBox(height: 12),
-            Text(l.t('projects_empty'), style: const TextStyle(fontSize: 16, color: Color(0xFF8B95A5))),
-            const SizedBox(height: 4),
-            Text(l.t('projects_empty_sub'), style: const TextStyle(color: Color(0xFF5A6577), fontSize: 13)),
-          ],
-        ),
+      return AkarEmptyState(
+        icon: Icons.folder_open,
+        message: l.t('projects_empty'),
+        subtitle: l.t('projects_empty_sub'),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () async { setState(() => _loading = true); await _load(); },
+      onRefresh: _load,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _projects.length,
