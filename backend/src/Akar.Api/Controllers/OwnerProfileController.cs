@@ -54,26 +54,24 @@ public class OwnerProfileController : ControllerBase
         var ownerId = GetOwnerId();
         if (ownerId == null) return Unauthorized();
 
-        try
+        var result = await _mediator.Send(new ChangeOwnerPasswordCommand(
+            ownerId.Value,
+            request.CurrentPassword, 
+            request.NewPassword, 
+            request.ConfirmNewPassword));
+
+        if (!result.IsSuccess)
         {
-            await _mediator.Send(new ChangeOwnerPasswordCommand(
-                ownerId.Value,
-                request.CurrentPassword, 
-                request.NewPassword, 
-                request.ConfirmNewPassword));
-            return NoContent();
+            var statusCode = result.ErrorCode == "OWNER_NOT_FOUND" ? 404 : 400;
+            return StatusCode(statusCode, new ProblemDetails
+            {
+                Status = statusCode,
+                Title = result.ErrorCode,
+                Detail = result.ErrorMessage,
+                Instance = HttpContext.Request.Path
+            });
         }
-        catch (InvalidOperationException ex) when (
-            ex.Message is "CURRENT_PASSWORD_INVALID" 
-                       or "PASSWORD_SAME_AS_CURRENT" 
-                       or "PASSWORD_CONFIRMATION_MISMATCH"
-                       or "PASSWORD_TOO_WEAK")
-        {
-            return BadRequest(new ProblemDetails { Status = 400, Title = ex.Message });
-        }
-        catch (InvalidOperationException ex) when (ex.Message == "OWNER_NOT_FOUND")
-        {
-            return NotFound(new ProblemDetails { Status = 404, Title = ex.Message });
-        }
+
+        return NoContent();
     }
 }
