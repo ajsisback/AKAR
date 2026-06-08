@@ -43,8 +43,8 @@ public class UpdateProjectSettingsCommandHandler : IRequestHandler<UpdateProject
         return new ProjectSettingsDto(
             project.Id,
             project.ProjectName,
-            project.ProjectType,
-            project.CurrentStage,
+            project.ProjectType.ToString(),
+            project.CurrentStage.ToString(),
             project.City,
             project.LocationText,
             project.MapLink,
