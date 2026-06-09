@@ -136,3 +136,10 @@ export Storage__LocalRootPath="/var/akar/storage"
 | HTTPS enforcement | Future (deployment) |
 | Backup/restore procedures | Future (operations) |
 | Monitoring and alerting | Future (operations) |
+
+## 12. Sprint 10 Completion
+
+- [x] Final runbook created ([docs/release/pilot-runbook.md](file:///c:/Users/JSSurface2/Desktop/AKAR/App/docs/release/pilot-runbook.md))
+- [x] Android build readiness completed ([docs/release/android-build-readiness.md](file:///c:/Users/JSSurface2/Desktop/AKAR/App/docs/release/android-build-readiness.md))
+- [x] Environment config completed
+- [x] PR readiness completed

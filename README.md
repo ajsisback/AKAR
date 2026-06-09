@@ -17,6 +17,13 @@ App/
 └── docs/             Architecture decisions & documentation
 ```
 
+## Release Documentation
+
+For pilot release preparation, deployment guides, and Android build details, please see:
+- [Pilot Runbook](docs/release/pilot-runbook.md) — Step-by-step local execution and release guidance.
+- [Android Build Readiness](docs/release/android-build-readiness.md) — Android configuration, build commands, and signing readiness.
+- [Pilot Release Readiness Checklist](docs/release/pilot-release-readiness.md) — Final checks before pilot deployment.
+
 ## Tech Stack
 
 | Layer | Technology |
