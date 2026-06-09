@@ -88,3 +88,12 @@ docker/.env
 # Storage (uploaded files — never commit)
 # ========================================
 storage/
+
+# ========================================
+# Android signing & build artifacts
+# ========================================
+*.jks
+*.keystore
+android/key.properties
+*.apk
+*.aab
