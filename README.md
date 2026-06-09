@@ -40,6 +40,7 @@ App/
 ```bash
 cd docker
 docker compose up -d
+docker compose ps          # confirm "healthy"
 ```
 
 ### 2. Run Backend API
@@ -47,15 +48,17 @@ docker compose up -d
 cd backend/src/Akar.Api
 dotnet run
 ```
-API will be available at `https://localhost:5001` with Swagger UI.
+- API: `http://localhost:5000`
+- Swagger UI: `http://localhost:5000/swagger` (dev only)
+- Health check: `http://localhost:5000/health`
 
-### 3. Run Admin Portal
+### 3. Run Admin Portal (Angular)
 ```bash
 cd admin-portal
 npm install
 npm start
 ```
-Portal will be available at `http://localhost:4200`.
+Portal: `http://localhost:4200`
 
 ### 4. Run Flutter Mobile App
 ```bash
@@ -63,7 +66,45 @@ cd mobile
 flutter pub get
 flutter run -d chrome --web-port 8888
 ```
-Mobile app will be available at `http://localhost:8888` (web mode) or on a connected device/emulator.
+Mobile app: `http://localhost:8888` (web mode)
+
+### Environment Configuration
+
+All backend configuration is driven by `appsettings.{Environment}.json` or environment variables.
+See `appsettings.Example.json` for a reference of all configurable values.
+
+For staging/pilot, key settings to update:
+- `Jwt:Key` — **Must** be changed from the dev placeholder
+- `ConnectionStrings:DefaultConnection` — Production database
+- `Cors:AllowedOrigins` — Deployed frontend URLs
+- `Storage:LocalRootPath` — Persistent server path
+
+Flutter API URL can be overridden at build time:
+```bash
+flutter run --dart-define=AKAR_API_URL=https://api.yourdomain.com
+```
+
+### Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| Port 5000 locked | `Stop-Process -Name Akar.Api -Force` or kill the process using port 5000 |
+| PostgreSQL not healthy | `docker compose down -v && docker compose up -d` (resets data) |
+| Flutter web OOM | Close other Chrome tabs, increase `--old-gen-heap-size` |
+| Angular build fails | Delete `node_modules`, run `npm install` again |
+| CORS errors | Verify `Cors:AllowedOrigins` in appsettings includes your frontend URL |
+
+### Useful URLs (Local Development)
+
+| Service | URL |
+|---|---|
+| Backend API | http://localhost:5000 |
+| Swagger UI | http://localhost:5000/swagger |
+| Health Check | http://localhost:5000/health |
+| Angular Admin | http://localhost:4200 |
+| Flutter Web | http://localhost:8888 |
+| PostgreSQL | localhost:5433 (via Docker) |
+
 
 ## Sprint 1 Status — Complete
 
@@ -289,7 +330,48 @@ Mobile app will be available at `http://localhost:8888` (web mode) or on a conne
 - Search filters (query, category, extension, sort).
 - Safe read-only file metadata inspection and secure downloads.
 
+## Sprint 8 Status — Complete ✅ (Owner Profile & Project Settings)
+
+### Backend API — Owner Settings ✅
+- Owner Profile API (GET, PUT)
+- Change Password API
+- Project Settings API (GET, PUT) with MapLink field
+- All endpoints owner-isolated via JWT
+
+### Flutter Mobile App — Settings UI ✅
+- Owner profile screen (view/edit)
+- Change password screen
+- Project settings screen (view/edit, MapLink, stage read-only)
+- AR/EN localization parity
+
+### Angular Admin Portal — Support Views ✅
+- Read-only owner profile support view on dashboard
+- Read-only project settings support view in project details
+- Stage display-only with "managed from timeline" note
+
+---
+
+## Sprint 9 Status — Complete ✅ (Pilot Readiness & Quality Hardening)
+
+### Sprint 9A — Backend Hardening ✅
+- Validation pipeline cleanup — all commands return Result objects
+- Zero bare IRequest commands remaining
+- ExceptionHandlingMiddleware hardened — no raw exceptions leak
+
+### Sprint 9B — Flutter UX Polish ✅
+- Shared state widgets: AkarLoadingState, AkarEmptyState, AkarErrorState, AkarPrimaryButton
+- Centralized error mapping (localizeError) for 40+ API error codes
+- 20/20 runtime smoke checks passed
+- AR/EN localization parity: 391 keys each
+
+### Sprint 9C — Angular Support Polish ✅
+- Loading/empty/error/retry states added to all support views
+- Read-only badges and clarity improvements
+- MapLink safety: `target="_blank" rel="noopener noreferrer"`
+- Common i18n keys added
+
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout
 - **English** — LTR layout
 - Language switcher available on all screens in both Angular and Flutter
+

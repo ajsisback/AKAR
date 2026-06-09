@@ -7,6 +7,7 @@
 *.sln.docstates
 [Dd]ebug/
 [Rr]elease/
+!docs/release/
 x64/
 x86/
 bld/
