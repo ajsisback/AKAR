@@ -17,6 +17,7 @@ public class ListOwnersForAdminQueryHandler : IRequestHandler<ListOwnersForAdmin
     {
         var owners = await _db.Owners
             .AsNoTracking()
+            .OrderByDescending(o => o.CreatedAtUtc)
             .Select(o => new AdminOwnerListItemDto(
                 o.Id,
                 o.FullName,
@@ -25,7 +26,6 @@ public class ListOwnersForAdminQueryHandler : IRequestHandler<ListOwnersForAdmin
                 o.CreatedAtUtc,
                 o.UpdatedAtUtc,
                 _db.Projects.Count(p => p.OwnerId == o.Id)))
-            .OrderByDescending(o => o.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
         return Result<List<AdminOwnerListItemDto>>.Success(owners);
