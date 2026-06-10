@@ -4,10 +4,26 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // Use 10.0.2.2 for Android emulator, localhost for web/desktop
+  // ── API Base URL Configuration ──────────────────────────────
+  //
+  // Local development (default):
+  //   Web:              http://localhost:5000
+  //   Android emulator: http://10.0.2.2:5000  (maps to host localhost)
+  //   Physical device:  http://<your-local-ip>:5000
+  //
+  // Staging/Pilot:
+  //   Set the AKAR_API_URL environment variable or update the fallback below.
+  //   Example: https://api.akar.example.com
+  //
+  // To override at build time (Flutter web):
+  //   flutter run --dart-define=AKAR_API_URL=https://api.staging.example.com
+  //
+  static const String _envApiUrl = String.fromEnvironment('AKAR_API_URL');
+
   static String get baseUrl {
+    if (_envApiUrl.isNotEmpty) return _envApiUrl;
     if (kIsWeb) return 'http://localhost:5000';
-    return 'http://10.0.2.2:5000';
+    return 'http://10.0.2.2:5000'; // Android emulator → host localhost
   }
 
   static const _tokenKey = 'akar_jwt';

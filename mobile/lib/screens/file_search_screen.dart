@@ -1,6 +1,5 @@
-import 'dart:js_interop';
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
+import '../core/download_helper.dart';
 import '../core/api_service.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
@@ -213,17 +212,7 @@ class _FileSearchScreenState extends State<FileSearchScreen> {
       await api.init();
       final bytes = await api.downloadFileBytes(widget.projectId, fileId);
 
-      final jsArray = bytes.toJS;
-      final blob = web.Blob([jsArray].toJS);
-      final url = web.URL.createObjectURL(blob);
-      final anchor = web.document.createElement('a') as web.HTMLAnchorElement
-        ..href = url
-        ..download = fileName
-        ..style.display = 'none';
-      web.document.body?.append(anchor);
-      anchor.click();
-      anchor.remove();
-      web.URL.revokeObjectURL(url);
+      downloadFileBytes(bytes, fileName);
     } on ApiException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -64,14 +64,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // --- CORS ---
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Value?
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? new[] { "http://localhost:4200", "http://localhost:8888" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowDevClients", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:4200",   // Angular admin portal
-                "http://localhost:8888"    // Flutter web dev
-            )
+        policy.WithOrigins(corsOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
