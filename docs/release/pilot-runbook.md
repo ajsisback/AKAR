@@ -182,7 +182,7 @@ Use the returned JWT token with admin read-only APIs:
 - `GET /api/admin/projects`
 - `GET /api/admin/projects/{projectId}`
 
-> The Angular admin portal UI will be implemented in Sprint 11B. Until then, admin APIs can be tested via curl/Swagger.
+> The Angular admin portal UI is now implemented (Sprint 11B) and can be accessed at `http://localhost:4200/admin/login`.
 
 ### Seed Idempotency
 
@@ -198,7 +198,6 @@ Running the seed endpoint multiple times is safe — existing records are detect
 * Custom app icon and splash branding.
 * Rate limiting on public upload endpoints.
 * HTTPS enforcement at the deployment (reverse proxy / load balancer) level.
-* Angular Super Admin Portal UI (Sprint 11B).
 * Admin write/update/delete actions.
 * Owner impersonation.
 * Production seed strategy.

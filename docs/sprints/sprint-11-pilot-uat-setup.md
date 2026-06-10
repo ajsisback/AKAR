@@ -4,8 +4,27 @@
 
 Sprint 11 prepares AKAR for controlled pilot testing. It is split into two sub-sprints:
 
-- **Sprint 11A** (this sprint): Backend pilot seed data + Admin/SuperAdmin baseline
-- **Sprint 11B** (next): Angular Web Admin Portal UI
+- **Sprint 11A** (completed): Backend pilot seed data + Admin/SuperAdmin baseline
+- **Sprint 11B** (completed): Angular Web Admin Portal UI
+
+## Sprint 11B Scope
+
+Frontend-only (Angular). Created the read-only Admin Web Portal UI to allow SuperAdmin and SupportAdmin to log in and view the system state.
+
+### Implemented Views (Read-Only)
+- **Login**: `/admin/login` (Admin token isolated from Owner token)
+- **Dashboard**: `/admin/dashboard` (System overview statistics)
+- **Owners List**: `/admin/owners` (List of owners and their project counts)
+- **Owner Details**: `/admin/owners/:id` (Owner info and their projects)
+- **Projects List**: `/admin/projects` (List of all projects)
+- **Project Details**: `/admin/projects/:id` (Project metadata and stats)
+
+### Frontend Constraints
+- UI string localization (Arabic & English) is fully supported.
+- `akar_admin_token` is isolated from `akar_token`.
+- Auth Interceptor accurately routes tokens using URL detection (`/api/admin`).
+- The Admin Guard protects all `/admin/*` routes checking for `userType === 'Admin'`.
+- All admin views display an "Admin View — Read Only" badge.
 
 ## Sprint 11A Scope
 

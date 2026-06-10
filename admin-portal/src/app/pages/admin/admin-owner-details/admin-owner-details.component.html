@@ -1,0 +1,87 @@
+<div class="admin-layout" >
+  <nav class="admin-navbar">
+    <div class="d-flex align-items-center">
+      <h4 class="mb-0">{{ 'app.title' | translate }}</h4>
+      <span class="badge-read-only">{{ 'admin.readOnlyBadge' | translate }}</span>
+    </div>
+    <div class="nav-links d-flex align-items-center">
+      <a routerLink="/admin/dashboard">{{ 'admin.dashboard' | translate }}</a>
+      <a routerLink="/admin/owners" class="active">{{ 'admin.owners' | translate }}</a>
+      <a routerLink="/admin/projects">{{ 'admin.projects' | translate }}</a>
+      <div style="width: 1px; height: 24px; background: #dee2e6; margin: 0 1rem;"></div>
+      <span class="me-3 text-muted">
+        {{ adminName }} ({{ role === 'SuperAdmin' ? ('admin.superAdmin' | translate) : ('admin.supportAdmin' | translate) }})
+      </span>
+      <button class="btn-link" (click)="languageService.toggleLanguage()">
+        {{ 'app.languageSwitch' | translate }}
+      </button>
+      <button class="btn-link ms-3 text-danger" (click)="logout()">
+        {{ 'admin.logout' | translate }}
+      </button>
+    </div>
+  </nav>
+
+  <main class="admin-content">
+    <a routerLink="/admin/owners" class="btn-back">
+      <span class="me-2">&larr;</span> {{ 'admin.back' | translate }}
+    </a>
+    
+    <h2>{{ 'admin.ownerDetails' | translate }}</h2>
+    
+    <div *ngIf="isLoading" class="mt-4">{{ 'admin.loading' | translate }}</div>
+    <div *ngIf="error" class="alert-danger mt-4">{{ error | translate }}</div>
+
+    <ng-container *ngIf="owner && !isLoading && !error">
+      <div class="details-card">
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.fullName' | translate }}</div>
+          <div class="detail-value">{{ owner.fullName }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.email' | translate }}</div>
+          <div class="detail-value">{{ owner.email }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.phone' | translate }}</div>
+          <div class="detail-value" dir="ltr" style="text-align: left;">{{ owner.phone }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.createdAt' | translate }}</div>
+          <div class="detail-value" dir="ltr" style="text-align: left;">{{ owner.createdAtUtc | date:'medium' }}</div>
+        </div>
+      </div>
+
+      <h4 class="mb-3">{{ 'admin.projects' | translate }} ({{ owner.projects.length }})</h4>
+      
+      <div class="table-card">
+        <table class="table" >
+          <thead>
+            <tr>
+              <th>{{ 'admin.projects' | translate }}</th>
+              <th>{{ 'admin.projectType' | translate }}</th>
+              <th>{{ 'admin.currentStage' | translate }}</th>
+              <th>{{ 'admin.city' | translate }}</th>
+              <th>{{ 'admin.createdAt' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="owner.projects.length === 0">
+              <td colspan="6" class="text-center py-4 text-muted">{{ 'admin.noProjectsFound' | translate }}</td>
+            </tr>
+            <tr *ngFor="let project of owner.projects" [routerLink]="['/admin/projects', project.projectId]">
+              <td>{{ project.projectName }}</td>
+              <td>{{ 'projectType.' + project.projectType | translate }}</td>
+              <td>{{ 'currentStage.' + project.currentStage | translate }}</td>
+              <td>{{ project.city }}</td>
+              <td dir="ltr" style="text-align: right;">{{ project.createdAtUtc | date:'mediumDate' }}</td>
+              <td style="text-align: end;">
+                <a [routerLink]="['/admin/projects', project.projectId]" class="btn-sm" (click)="$event.stopPropagation()">{{ 'admin.viewDetails' | translate }}</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </main>
+</div>

@@ -1,0 +1,43 @@
+<div class="admin-layout" >
+  <nav class="admin-navbar">
+    <div class="d-flex align-items-center">
+      <h4 class="mb-0">{{ 'app.title' | translate }}</h4>
+      <span class="badge-read-only">{{ 'admin.readOnlyBadge' | translate }}</span>
+    </div>
+    <div class="nav-links d-flex align-items-center">
+      <a routerLink="/admin/dashboard" class="active">{{ 'admin.dashboard' | translate }}</a>
+      <a routerLink="/admin/owners">{{ 'admin.owners' | translate }}</a>
+      <a routerLink="/admin/projects">{{ 'admin.projects' | translate }}</a>
+      <div style="width: 1px; height: 24px; background: #dee2e6; margin: 0 1rem;"></div>
+      <span class="me-3 text-muted">
+        {{ adminName }} ({{ role === 'SuperAdmin' ? ('admin.superAdmin' | translate) : ('admin.supportAdmin' | translate) }})
+      </span>
+      <button class="btn-link" (click)="languageService.toggleLanguage()">
+        {{ 'app.languageSwitch' | translate }}
+      </button>
+      <button class="btn-link ms-3 text-danger" (click)="logout()">
+        {{ 'admin.logout' | translate }}
+      </button>
+    </div>
+  </nav>
+
+  <main class="admin-content">
+    <h2>{{ 'admin.dashboard' | translate }}</h2>
+    
+    <div *ngIf="isLoading" class="mt-4">{{ 'admin.loading' | translate }}</div>
+    <div *ngIf="error" class="alert-danger mt-4">{{ error | translate }}</div>
+
+    <div class="dashboard-grid" *ngIf="!isLoading && !error">
+      <div class="stat-card">
+        <div class="stat-title">{{ 'admin.totalOwners' | translate }}</div>
+        <div class="stat-value">{{ totalOwners }}</div>
+        <a routerLink="/admin/owners" class="btn-link d-inline-block mt-2">{{ 'admin.viewDetails' | translate }}</a>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">{{ 'admin.totalProjects' | translate }}</div>
+        <div class="stat-value">{{ totalProjects }}</div>
+        <a routerLink="/admin/projects" class="btn-link d-inline-block mt-2">{{ 'admin.viewDetails' | translate }}</a>
+      </div>
+    </div>
+  </main>
+</div>
