@@ -138,7 +138,57 @@ Navigate to the `mobile` directory to run these commands:
 - [x] Security and secrets review passed.
 - [x] Git working tree is clean.
 
-## 13. Deferred Items
+## 13. Pilot Seed Data (Sprint 11A)
+
+### Running Pilot Seed
+
+After starting the backend in Development mode:
+
+```bash
+# Seed pilot data (Development environment only)
+curl -X POST http://localhost:5000/api/dev/seed/pilot
+```
+
+This creates:
+- **SuperAdmin:** `superadmin@akar.local` / `Admin@12345`
+- **SupportAdmin:** `support@akar.local` / `Support@12345`
+- **Pilot Owner:** `pilot.owner@akar.local` / `Pilot@12345`
+- **Pilot Project:** فيلا حي النرجس (Villa, Structural, الرياض)
+- Followers, timeline events, draft contract, upload link
+
+> ⚠️ **WARNING:** These credentials are for development/pilot testing only. Never use in production. The seed endpoint does not exist in non-Development environments.
+
+### Login as Pilot Owner (Flutter Mobile App)
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"pilot.owner@akar.local","password":"Pilot@12345"}'
+```
+
+Use the returned JWT token to access owner APIs.
+
+### Login as Super Admin (Angular Admin Portal — Sprint 11B)
+
+```bash
+curl -X POST http://localhost:5000/api/admin/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"superadmin@akar.local","password":"Admin@12345"}'
+```
+
+Use the returned JWT token with admin read-only APIs:
+- `GET /api/admin/owners`
+- `GET /api/admin/owners/{ownerId}`
+- `GET /api/admin/projects`
+- `GET /api/admin/projects/{projectId}`
+
+> The Angular admin portal UI will be implemented in Sprint 11B. Until then, admin APIs can be tested via curl/Swagger.
+
+### Seed Idempotency
+
+Running the seed endpoint multiple times is safe — existing records are detected by email/phone and skipped.
+
+## 14. Deferred Items
 * Google Play Console setup.
 * Production release keystore generation and configuration.
 * iOS build readiness and provisioning.
@@ -148,3 +198,9 @@ Navigate to the `mobile` directory to run these commands:
 * Custom app icon and splash branding.
 * Rate limiting on public upload endpoints.
 * HTTPS enforcement at the deployment (reverse proxy / load balancer) level.
+* Angular Super Admin Portal UI (Sprint 11B).
+* Admin write/update/delete actions.
+* Owner impersonation.
+* Production seed strategy.
+* Audit logs.
+
