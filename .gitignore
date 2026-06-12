@@ -59,6 +59,7 @@ typings/
 .pub/
 /build/
 mobile/build/
+mobile/**/build/
 *.iml
 
 # ========================================
