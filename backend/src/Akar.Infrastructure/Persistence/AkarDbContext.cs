@@ -24,6 +24,7 @@ public class AkarDbContext : DbContext
     public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
     public DbSet<ProjectContract> ProjectContracts => Set<ProjectContract>();
     public DbSet<ProjectTimelineEvent> ProjectTimelineEvents => Set<ProjectTimelineEvent>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

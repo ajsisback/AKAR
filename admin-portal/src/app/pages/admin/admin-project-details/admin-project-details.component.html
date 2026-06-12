@@ -1,0 +1,90 @@
+<div class="admin-layout" >
+  <nav class="admin-navbar">
+    <div class="d-flex align-items-center">
+      <h4 class="mb-0">{{ 'app.title' | translate }}</h4>
+      <span class="badge-read-only">{{ 'admin.readOnlyBadge' | translate }}</span>
+    </div>
+    <div class="nav-links d-flex align-items-center">
+      <a routerLink="/admin/dashboard">{{ 'admin.dashboard' | translate }}</a>
+      <a routerLink="/admin/owners">{{ 'admin.owners' | translate }}</a>
+      <a routerLink="/admin/projects" class="active">{{ 'admin.projects' | translate }}</a>
+      <div style="width: 1px; height: 24px; background: #dee2e6; margin: 0 1rem;"></div>
+      <span class="me-3 text-muted">
+        {{ adminName }} ({{ role === 'SuperAdmin' ? ('admin.superAdmin' | translate) : ('admin.supportAdmin' | translate) }})
+      </span>
+      <button class="btn-link" (click)="languageService.toggleLanguage()">
+        {{ 'app.languageSwitch' | translate }}
+      </button>
+      <button class="btn-link ms-3 text-danger" (click)="logout()">
+        {{ 'admin.logout' | translate }}
+      </button>
+    </div>
+  </nav>
+
+  <main class="admin-content">
+    <a routerLink="/admin/projects" class="btn-back">
+      <span class="me-2">&larr;</span> {{ 'admin.back' | translate }}
+    </a>
+    
+    <h2>{{ 'admin.projectDetails' | translate }}</h2>
+    
+    <div *ngIf="isLoading" class="mt-4">{{ 'admin.loading' | translate }}</div>
+    <div *ngIf="error" class="alert-danger mt-4">{{ error | translate }}</div>
+
+    <ng-container *ngIf="project && !isLoading && !error">
+      <div class="details-card">
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.ownerDetails' | translate }}</div>
+          <div class="detail-value">
+            <a [routerLink]="['/admin/owners', project.ownerId]" class="btn-link p-0">{{ project.ownerName }}</a>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'projects.name' | translate }}</div>
+          <div class="detail-value">{{ project.projectName }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.projectType' | translate }}</div>
+          <div class="detail-value">{{ 'projectType.' + project.projectType | translate }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.currentStage' | translate }}</div>
+          <div class="detail-value">{{ 'currentStage.' + project.currentStage | translate }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.city' | translate }}</div>
+          <div class="detail-value">{{ project.city }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'projects.location' | translate }}</div>
+          <div class="detail-value">{{ project.locationText || '-' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">{{ 'admin.createdAt' | translate }}</div>
+          <div class="detail-value" dir="ltr" style="text-align: left;">{{ project.createdAtUtc | date:'medium' }}</div>
+        </div>
+
+        <hr class="my-4" style="border-top: 1px solid #dee2e6;">
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="title">{{ 'admin.filesCount' | translate }}</div>
+            <div class="val">{{ project.fileCount }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="title">{{ 'admin.followersCount' | translate }}</div>
+            <div class="val">{{ project.followerCount }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="title">{{ 'admin.contractsCount' | translate }}</div>
+            <div class="val">{{ project.contractCount }}</div>
+          </div>
+          <div class="stat-box">
+            <div class="title">{{ 'admin.timelineEventsCount' | translate }}</div>
+            <div class="val">{{ project.timelineCount }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </main>
+</div>

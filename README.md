@@ -377,6 +377,67 @@ flutter run --dart-define=AKAR_API_URL=https://api.yourdomain.com
 - MapLink safety: `target="_blank" rel="noopener noreferrer"`
 - Common i18n keys added
 
+---
+
+## Sprint 10 Status — Complete ✅ (Release Readiness)
+
+### Pilot Release Documentation ✅
+- Pilot runbook with full local startup sequence and deployment guidance
+- Android build readiness guide (debug APK, release APK, app bundle)
+- Pilot release readiness checklist with security review
+- Environment configuration examples for backend, Flutter, and Angular
+
+### Infrastructure ✅
+- `appsettings.Example.json` template for all configurable values
+- CORS, JWT, storage, and database configuration documented
+- Android `network_security_config.xml` for cleartext HTTP restriction
+- Flutter `--dart-define=AKAR_API_URL` build-time configuration
+
+---
+
+## Sprint 11 Status — Complete ✅ (Pilot UAT Setup)
+
+> ⚠️ Sprint 11 is **read-only admin monitoring** only. It does not include admin write/update/delete actions, owner impersonation, full RBAC, audit logs, or production seed strategy.
+
+### Sprint 11A — Backend Admin Baseline ✅
+- `AdminUser` entity and `AdminRole` enum (`SuperAdmin`, `SupportAdmin`)
+- EF Core migration: `AddAdminUsers` (admin_users table)
+- Admin authentication: `POST /api/admin/auth/login` (JWT with `userType=Admin`)
+- Admin read-only APIs (all require `AdminOnly` policy):
+  - `GET /api/admin/owners` — List all owners with project counts
+  - `GET /api/admin/owners/{ownerId}` — Owner detail with project summaries
+  - `GET /api/admin/projects` — List all projects system-wide
+  - `GET /api/admin/projects/{projectId}` — Project detail with entity counts
+- Authorization policies: `AdminOnly` (userType=Admin), `SuperAdminOnly` (userType=Admin + role=SuperAdmin)
+- Pilot seed endpoint: `POST /api/dev/seed/pilot` (Development-only, returns 404 in other environments)
+- Seed creates: 2 admin accounts, 1 pilot owner, project, folders, followers, timeline, contract, upload link
+
+### Sprint 11B — Angular Admin Portal Read-Only Views ✅
+- Admin login (`/admin/login`) with isolated `akar_admin_token`
+- Admin dashboard (`/admin/dashboard`) with total owners/projects counts
+- Owners list (`/admin/owners`) and details (`/admin/owners/:id`)
+- Projects list (`/admin/projects`) and details (`/admin/projects/:id`)
+- AdminAuthService, AdminApiService, AdminGuard, AuthInterceptor (dual-token URL routing)
+- All admin views display "Admin View — Read Only" badge
+- Arabic/English bilingual (38 admin i18n keys each)
+
+### Security Model ✅
+- Admin and Owner are completely separate user contexts (different JWTs, different APIs, different localStorage keys)
+- Owner token cannot access admin APIs (AdminOnly policy check)
+- Admin token does not affect owner APIs (different sub claim)
+- All admin endpoints are GET-only (read-only)
+- Seed endpoint is gated by `IsDevelopment()` — returns 404 in production
+- Passwords hashed with BCrypt, no raw passwords or hashes exposed
+
+### Deferred
+- Admin write/update/delete actions
+- Owner impersonation
+- Production seed strategy
+- Audit logs
+- Full RBAC matrix
+- Password reset for admin
+- Billing/subscriptions
+
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout
 - **English** — LTR layout

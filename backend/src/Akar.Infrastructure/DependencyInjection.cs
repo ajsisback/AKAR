@@ -19,6 +19,9 @@ public static class DependencyInjection
         services.AddDbContext<AkarDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+        // Register MediatR handlers from Infrastructure assembly
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
         // Repositories
         services.AddScoped<IOwnerRepository, OwnerRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
@@ -29,12 +32,14 @@ public static class DependencyInjection
         services.AddScoped<IContractTemplateRepository, ContractTemplateRepository>();
         services.AddScoped<IProjectContractRepository, ProjectContractRepository>();
         services.AddScoped<IProjectTimelineRepository, ProjectTimelineRepository>();
+        services.AddScoped<IAdminUserRepository, AdminUserRepository>();
 
         // Services
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasherService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IContractPdfGenerator, ContractPdfGenerator>();
+        services.AddScoped<Seed.PilotDataSeeder>();
 
         // JWT Authentication
         var jwtSettings = configuration.GetSection("Jwt");
@@ -50,12 +55,25 @@ public static class DependencyInjection
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+                        Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
+                    RoleClaimType = System.Security.Claims.ClaimTypes.Role
                 };
             });
 
-        services.AddAuthorization();
+        // Authorization Policies
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim("userType", "Admin"));
+
+            options.AddPolicy("SuperAdminOnly", policy =>
+            {
+                policy.RequireClaim("userType", "Admin");
+                policy.RequireRole("SuperAdmin");
+            });
+        });
 
         return services;
     }
 }
+

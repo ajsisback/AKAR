@@ -18,17 +18,38 @@ public class JwtTokenService : IJwtTokenService
 
     public string GenerateToken(Guid ownerId, string email, string fullName)
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, ownerId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim("fullName", fullName),
+            new Claim("userType", "Owner"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        return BuildToken(claims);
+    }
+
+    public string GenerateAdminToken(Guid adminId, string email, string fullName, string role)
+    {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, adminId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim("fullName", fullName),
+            new Claim("userType", "Admin"),
+            new Claim(ClaimTypes.Role, role),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        return BuildToken(claims);
+    }
+
+    private string BuildToken(Claim[] claims)
+    {
+        var jwtSettings = _configuration.GetSection("Jwt");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: jwtSettings["Issuer"],
@@ -40,3 +61,4 @@ public class JwtTokenService : IJwtTokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
+
