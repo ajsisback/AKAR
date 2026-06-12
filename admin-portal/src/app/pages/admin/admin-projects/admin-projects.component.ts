@@ -50,8 +50,8 @@ export class AdminProjectsComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getProjects().subscribe({
-      next: (res) => {
-        this.projects = res.value;
+      next: (projects) => {
+        this.projects = projects;
         this.isLoading = false;
       },
       error: () => {

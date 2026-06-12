@@ -58,6 +58,7 @@ typings/
 .pub-cache/
 .pub/
 /build/
+mobile/build/
 *.iml
 
 # ========================================

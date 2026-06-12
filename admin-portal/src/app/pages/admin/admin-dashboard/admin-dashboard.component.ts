@@ -48,11 +48,11 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getOwners().subscribe({
-      next: (res) => {
-        this.totalOwners = res.count;
+      next: (owners) => {
+        this.totalOwners = owners.length;
         this.apiService.getProjects().subscribe({
-          next: (pRes) => {
-            this.totalProjects = pRes.count;
+          next: (projects) => {
+            this.totalProjects = projects.length;
             this.isLoading = false;
           },
           error: () => {

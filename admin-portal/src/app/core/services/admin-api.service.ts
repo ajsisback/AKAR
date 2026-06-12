@@ -65,16 +65,16 @@ export interface AdminProjectDetailDto {
 export class AdminApiService {
   constructor(private http: HttpClient) {}
 
-  getOwners(): Observable<{ value: AdminOwnerListItemDto[]; count: number }> {
-    return this.http.get<{ value: AdminOwnerListItemDto[]; count: number }>(`${environment.apiUrl}/admin/owners`);
+  getOwners(): Observable<AdminOwnerListItemDto[]> {
+    return this.http.get<AdminOwnerListItemDto[]>(`${environment.apiUrl}/admin/owners`);
   }
 
   getOwner(id: string): Observable<AdminOwnerDetailDto> {
     return this.http.get<AdminOwnerDetailDto>(`${environment.apiUrl}/admin/owners/${id}`);
   }
 
-  getProjects(): Observable<{ value: AdminProjectListItemDto[]; count: number }> {
-    return this.http.get<{ value: AdminProjectListItemDto[]; count: number }>(`${environment.apiUrl}/admin/projects`);
+  getProjects(): Observable<AdminProjectListItemDto[]> {
+    return this.http.get<AdminProjectListItemDto[]>(`${environment.apiUrl}/admin/projects`);
   }
 
   getProject(id: string): Observable<AdminProjectDetailDto> {

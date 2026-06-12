@@ -50,8 +50,8 @@ export class AdminOwnersComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getOwners().subscribe({
-      next: (res) => {
-        this.owners = res.value;
+      next: (owners) => {
+        this.owners = owners;
         this.isLoading = false;
       },
       error: () => {

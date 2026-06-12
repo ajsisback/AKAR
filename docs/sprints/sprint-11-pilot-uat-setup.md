@@ -156,9 +156,8 @@ All require `AdminOnly` policy (JWT with `userType = Admin`).
 - No storage paths exposed in APIs
 - No real customer data
 
-## Deferred to Sprint 11B+
+## Deferred to Sprint 12+
 
-- Angular Super Admin Portal UI
 - Admin write/update/delete actions
 - Owner impersonation
 - Production seed strategy
@@ -166,3 +165,16 @@ All require `AdminOnly` policy (JWT with `userType = Admin`).
 - Full RBAC matrix
 - Password reset
 - Billing/subscriptions
+
+## Closure Verification
+
+Sprint 11 was closed with the following verification:
+
+- ✅ Backend build: 0 errors, 0 warnings
+- ✅ Angular production build: successful (1 pre-existing style budget warning, not Sprint 11 related)
+- ✅ Flutter analyze: no issues found
+- ✅ API response shape mismatch fixed (Angular now correctly consumes backend array responses)
+- ✅ Dev helper scripts removed (fix-components.js, fix2.js)
+- ✅ .gitignore updated to prevent mobile build artifacts
+- ✅ README updated with Sprint 10 and Sprint 11 status
+- ✅ Security review passed — admin/owner isolation confirmed
