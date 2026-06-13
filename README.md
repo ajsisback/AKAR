@@ -438,6 +438,37 @@ flutter run --dart-define=AKAR_API_URL=https://api.yourdomain.com
 - Password reset for admin
 - Billing/subscriptions
 
+---
+
+## Sprint 12 Status — Complete ✅ (Pilot UAT Execution & MVP Gap Closure)
+
+### Sprint 12A — End-to-End UAT Smoke Test ✅
+- Owner flow: 23/23 API tests passed (register, login, dashboard, profile, password, project, folders, search, followers, upload links, contracts, timeline, settings, trash)
+- Admin flow: 5/5 API tests passed (admin login, owners, owner details, projects, project details)
+- Security: 4/4 tests passed (invalid login 401, unauthenticated 401, owner→admin blocked 403, admin isolation)
+
+### Sprint 12B — MVP Gap Closure ✅
+- Subscription placeholder: "Pilot — Trial" badge added to owner profile screen (local-only, no backend changes)
+- i18n parity verified: 394 keys each (AR/EN), 100% match
+- Error handling: All 30+ mapped error codes verified present in both AR/EN i18n files
+
+### Sprint 12C — Pilot Release Readiness ✅
+- All release checklist items verified (health, seed, CORS, HTTPS, env vars, auth guards)
+- Angular production build: 0 errors
+- Backend build: 0 warnings, 0 errors
+- Flutter analyze: 0 issues
+
+### Sprint 12D — Content Readiness Assessment ✅
+- Building guide, Saudi Code, directory: documented as deferred to Sprint 13
+
+### Deferred
+- Step-by-step building guide (Sprint 13 — static JSON)
+- Saudi Code simplified content (Sprint 13 — static JSON)
+- Lightweight directory (Sprint 13+ — static categories)
+- Custom app icon (before Play Store)
+- Custom splash screen (before Play Store)
+- Android applicationId rename to `com.meyaar.akar` (before Play Store)
+
 ## Language Support
 - **Arabic (العربية)** — Default, RTL layout
 - **English** — LTR layout

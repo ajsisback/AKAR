@@ -412,5 +412,9 @@
   "saved_successfully": "Saved successfully",
   "err_unexpected": "An unexpected error occurred",
   "no_data": "No data available",
-  "try_again": "Try again"
+  "try_again": "Try again",
+
+  "subscription_status": "Subscription",
+  "subscription_pilot_trial": "Pilot — Trial",
+  "subscription_active": "Active"
 }
