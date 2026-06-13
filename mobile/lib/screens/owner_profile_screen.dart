@@ -217,6 +217,50 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             label: l.t('profile_updated_at'),
             value: _formatDate(_profile!['updatedAtUtc']),
           ),
+          const SizedBox(height: 20),
+
+          // ── Subscription Status (pilot placeholder — local-only) ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: AkarTheme.success.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AkarTheme.success.withValues(alpha: 0.25)),
+            ),
+            child: Row(children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AkarTheme.success.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.verified_user_outlined, color: AkarTheme.success, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.t('subscription_status'),
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 2),
+                    Text(l.t('subscription_pilot_trial'),
+                        style: const TextStyle(color: AkarTheme.success, fontSize: 12, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AkarTheme.success.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(l.t('subscription_active'),
+                    style: const TextStyle(color: AkarTheme.success, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ]),
+          ),
           const SizedBox(height: 28),
 
           // Save button (editing mode)

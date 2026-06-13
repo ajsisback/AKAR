@@ -412,5 +412,9 @@
   "saved_successfully": "تم الحفظ بنجاح",
   "err_unexpected": "حدث خطأ غير متوقع",
   "no_data": "لا توجد بيانات",
-  "try_again": "حاول مرة أخرى"
+  "try_again": "حاول مرة أخرى",
+
+  "subscription_status": "الاشتراك",
+  "subscription_pilot_trial": "تجريبي — Pilot",
+  "subscription_active": "فعال"
 }
